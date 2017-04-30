@@ -35,30 +35,39 @@ public class ProductGatewayRoute extends SpringRouteBuilder {
         rest("/products")
 
                 .post()
+                    .id("addProduct")
                     .to("")
 
                 .get()
+                    .id("getProducts")
                     .to("")
 
                 .get("/{sku}")
+                    .id("getProductBySku")
                     .to("")
 
                 .put("/{sku}")
+                    .id("updateProduct")
                     .to("")
 
                 .patch("/{sku}")
+                    .id("partialllyUpdateProduct")
                     .to("")
 
                 .delete("/{sku}")
+                    .id("deleteProduct")
                     .to("")
 
                 .post("/keywords")
+                    .id("addKeywords")
                     .to("")
 
                 .post("/classify/{sku}")
+                    .id("classifyProduct")
                     .to("")
 
                 .post("/reduce")
+                    .id("reduceProductInInventory")
                     .to("");
     }
 }

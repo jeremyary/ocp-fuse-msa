@@ -38,9 +38,11 @@ public class BillingRoute extends SpringRouteBuilder {
     public void configure() throws Exception {
 
         from("amq:billing.orders.new?transferException=true")
+                .routeId("processNewOrders")
                 .bean(billingService, "process");
 
         from("amq:billing.orders.refund?transferException=true")
+                .routeId("processRefunds")
                 .bean(billingService, "refund");
     }
 }

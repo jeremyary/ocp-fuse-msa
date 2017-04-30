@@ -35,60 +35,79 @@ public class SalesGatewayRoute extends SpringRouteBuilder {
         rest("/customers")
 
                 .post()
+                    .id("addCustomer")
                     .to("")
 
                 .get()
+                    .id("getCustomer")
                     .to("")
 
                 .get("/{id}")
+                    .id("getCustomerById")
                     .to("")
 
                 .put("/{id}")
+                    .id("updateCustomer")
                     .to("")
 
                 .patch("/{id}")
+                    .id("partiallyUpdateCustomer")
                     .to("")
 
                 .delete("/{id}")
+                    .id("deleteCustomer")
                     .to("")
 
                 .post("/{customerId}/orders")
+                    .id("addOrderToCustomer")
                     .to("")
 
                 .get("/{customerId}/orders")
+                    .id("getOrdersForCustomer")
                     .to("")
 
                 .get("/{customerId}/orders/{orderId}")
+                    .id("getOrderByOrderId")
                     .to("")
 
                 .put("/{customerId}/orders/{orderId}")
+                    .id("updateOrder")
                     .to("")
 
                 .patch("/{customerId}/orders/{orderId}")
+                    .id("partiallyUpdateOrder")
                     .to("")
 
                 .delete("/{customerId}/orders/{orderId}")
+                    .id("deleteOrder")
                     .to("")
 
                 .post("/{customerId}/orders/{orderId}/orderItems")
+                    .id("addOrderItem")
                     .to("")
 
                 .get("/{customerId}/orders/{orderId}/orderItems")
+                    .id("listOrderItems")
                     .to("")
 
                 .get("/{customerId}/orders/{orderId}/orderItems/{orderItemId}")
+                    .id("getOrderItemByOrderItemId")
                     .to("")
 
                 .put("/{customerId}/orders/{orderId}/orderItems/{orderItemId}")
+                    .id("updateOrderItem")
                     .to("")
 
                 .patch("/{customerId}/orders/{orderId}/orderItems/{orderItemId}")
+                    .id("partiallyUpdateOrderItem")
                     .to("")
 
                 .delete("/{customerId}/orders/{orderId}/orderItems/{orderItemId}")
+                    .id("deleteOrderItem")
                     .to("")
 
                 .post("/authenticate")
+                    .id("authenticateCustomer")
                     .to("");
     }
 }
