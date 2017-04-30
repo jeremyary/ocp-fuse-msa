@@ -13,6 +13,6 @@
     <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring">
         <routeBuilder ref="billingGatewayRoute"/>
         <routeBuilder ref="salesGatewayRoute"/>
-        <routeBuilder ref="purchaseGatewayRoute"/>
+        <routeBuilder ref="productGatewayRoute"/>
     </camelContext>
 </beans>
