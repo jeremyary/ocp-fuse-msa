@@ -32,6 +32,12 @@ public class BillingGatewayRoute extends SpringRouteBuilder {
     @Override
     public void configure() throws Exception {
 
+        errorHandler(
+                deadLetterChannel("amq:billing.deadLetter")
+                        .maximumRedeliveries(3)
+                        .redeliveryDelay(3000)
+        );
+
         rest("/billing")
 
                 .post("/process")
@@ -46,11 +52,5 @@ public class BillingGatewayRoute extends SpringRouteBuilder {
 
         from("direct:refunds")
                 .inOut("amq:billing.orders.refund?transferException=true");
-
-        errorHandler(
-                deadLetterChannel("amq:billing.deadLetter")
-                        .maximumRedeliveries(3)
-                        .redeliveryDelay(3000)
-        );
     }
 }
