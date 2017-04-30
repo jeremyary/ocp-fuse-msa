@@ -36,7 +36,7 @@ import com.redhat.refarch.microservices.utils.Utils;
 
 @Stateless
 @LocalBean
-@Path("/")
+@Path("/customers")
 public class SalesService
 {
 
@@ -46,7 +46,7 @@ public class SalesService
 	private EntityManager em;
 
 	@POST
-	@Path("/customers")
+	@Path("/")
 	@Consumes({"application/json", "application/xml"})
 	@Produces({"application/json", "application/xml"})
 	public Customer addCustomer(Customer customer)
@@ -63,7 +63,7 @@ public class SalesService
 	}
 
 	@GET
-	@Path("/customers")
+	@Path("/")
 	@Produces({"application/json", "application/xml"})
 	public Customer getCustomer(@QueryParam("username") String username)
 	{
@@ -85,7 +85,7 @@ public class SalesService
 	}
 
 	@GET
-	@Path("/customers/{id}")
+	@Path("/{id}")
 	@Produces({"application/json", "application/xml"})
 	public Customer getCustomer(@PathParam("id") Long id)
 	{
@@ -111,7 +111,7 @@ public class SalesService
 	}
 
 	@PUT
-	@Path("/customers/{id}")
+	@Path("/{id}")
 	@Consumes({"application/json", "application/xml"})
 	@Produces({"application/json", "application/xml"})
 	public Customer updateCustomer(@PathParam("id") Long id, Customer customer)
@@ -132,7 +132,7 @@ public class SalesService
 	}
 
 	@PATCH
-	@Path("/customers/{id}")
+	@Path("/{id}")
 	@Consumes({"application/json", "application/xml"})
 	@Produces({"application/json", "application/xml"})
 	public Customer partiallyUpdateCustomer(@PathParam("id") Long id, Customer customer)
@@ -153,7 +153,7 @@ public class SalesService
 	}
 
 	@DELETE
-	@Path("/customers/{id}")
+	@Path("/{id}")
 	@Consumes({"application/json", "application/xml"})
 	@Produces({"application/json", "application/xml"})
 	public void deleteCustomer(@PathParam("id") Long id)
@@ -170,7 +170,7 @@ public class SalesService
 	}
 
 	@POST
-	@Path("/customers/{customerId}/orders")
+	@Path("/{customerId}/orders")
 	@Consumes({"application/json", "application/xml"})
 	@Produces({"application/json", "application/xml"})
 	public Order addOrder(@PathParam("customerId") Long customerId, Order order)
@@ -189,7 +189,7 @@ public class SalesService
 	}
 
 	@GET
-	@Path("/customers/{customerId}/orders")
+	@Path("/{customerId}/orders")
 	@Produces({"application/json", "application/xml"})
 	public List<Order> getOrders(@PathParam("customerId") Long customerId, @QueryParam("status") Status status)
 	{
@@ -219,7 +219,7 @@ public class SalesService
 	}
 
 	@GET
-	@Path("/customers/{customerId}/orders/{orderId}")
+	@Path("/{customerId}/orders/{orderId}")
 	@Produces({"application/json", "application/xml"})
 	public Order getOrder(@PathParam("customerId") Long customerId, @PathParam("orderId") Long orderId)
 	{
@@ -247,7 +247,7 @@ public class SalesService
 	}
 
 	@PUT
-	@Path("/customers/{customerId}/orders/{orderId}")
+	@Path("/{customerId}/orders/{orderId}")
 	@Consumes({"application/json", "application/xml"})
 	@Produces({"application/json", "application/xml"})
 	public Order updateOrder(@PathParam("customerId") Long customerId, @PathParam("orderId") Long orderId, Order order)
@@ -268,7 +268,7 @@ public class SalesService
 	}
 
 	@PATCH
-	@Path("/customers/{customerId}/orders/{orderId}")
+	@Path("/{customerId}/orders/{orderId}")
 	@Consumes({"application/json", "application/xml"})
 	@Produces({"application/json", "application/xml"})
 	public Order partiallyUpdateOrder(@PathParam("customerId") Long customerId, @PathParam("orderId") Long orderId, Order order)
@@ -289,7 +289,7 @@ public class SalesService
 	}
 
 	@DELETE
-	@Path("/customers/{customerId}/orders/{orderId}")
+	@Path("/{customerId}/orders/{orderId}")
 	public void deleteOrder(@PathParam("customerId") Long customerId, @PathParam("orderId") Long orderId)
 	{
 		Order entity = getOrder( customerId, orderId );
@@ -304,7 +304,7 @@ public class SalesService
 	}
 
 	@POST
-	@Path("/customers/{customerId}/orders/{orderId}/orderItems")
+	@Path("/{customerId}/orders/{orderId}/orderItems")
 	@Consumes({"application/json", "application/xml"})
 	@Produces({"application/json", "application/xml"})
 	public OrderItem addOrderItem(@PathParam("customerId") Long customerId, @PathParam("orderId") Long orderId, OrderItem orderItem)
@@ -323,7 +323,7 @@ public class SalesService
 	}
 
 	@GET
-	@Path("/customers/{customerId}/orders/{orderId}/orderItems")
+	@Path("/{customerId}/orders/{orderId}/orderItems")
 	@Produces({"application/json", "application/xml"})
 	public List<OrderItem> getOrderItems(@PathParam("customerId") Long customerId, @PathParam("orderId") Long orderId)
 	{
@@ -343,7 +343,7 @@ public class SalesService
 	}
 
 	@GET
-	@Path("/customers/{customerId}/orders/{orderId}/orderItems/{orderItemId}")
+	@Path("/{customerId}/orders/{orderId}/orderItems/{orderItemId}")
 	@Produces({"application/json", "application/xml"})
 	public OrderItem getOrderItem(@PathParam("customerId") Long customerId, @PathParam("orderId") Long orderId,
 			@PathParam("orderItemId") Long orderItemId)
@@ -372,7 +372,7 @@ public class SalesService
 	}
 
 	@PUT
-	@Path("/customers/{customerId}/orders/{orderId}/orderItems/{orderItemId}")
+	@Path("/{customerId}/orders/{orderId}/orderItems/{orderItemId}")
 	@Consumes({"application/json", "application/xml"})
 	@Produces({"application/json", "application/xml"})
 	public OrderItem updateOrderItem(@PathParam("customerId") Long customerId, @PathParam("orderId") Long orderId,
@@ -394,7 +394,7 @@ public class SalesService
 	}
 
 	@PATCH
-	@Path("/customers/{customerId}/orders/{orderId}/orderItems/{orderItemId}")
+	@Path("/{customerId}/orders/{orderId}/orderItems/{orderItemId}")
 	@Consumes({"application/json", "application/xml"})
 	@Produces({"application/json", "application/xml"})
 	public OrderItem partiallyUpdateOrderItem(@PathParam("customerId") Long customerId, @PathParam("orderId") Long orderId,
@@ -416,7 +416,7 @@ public class SalesService
 	}
 
 	@DELETE
-	@Path("/customers/{customerId}/orders/{orderId}/orderItems/{orderItemId}")
+	@Path("/{customerId}/orders/{orderId}/orderItems/{orderItemId}")
 	public void deleteOrderItem(@PathParam("customerId") Long customerId, @PathParam("orderId") Long orderId,
 			@PathParam("orderItemId") Long orderItemId)
 	{

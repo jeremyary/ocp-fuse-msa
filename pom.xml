@@ -14,6 +14,7 @@
         <module>Product</module>
         <module>Sales</module>
         <module>Billing</module>
+        <module>Gateway</module>
     </modules>
  
 </project>

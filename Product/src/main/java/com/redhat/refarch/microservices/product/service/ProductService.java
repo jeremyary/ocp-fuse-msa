@@ -40,7 +40,7 @@ import com.redhat.refarch.microservices.product.model.Keyword;
 import com.redhat.refarch.microservices.product.model.Product;
 import com.redhat.refarch.microservices.utils.Utils;
 
-@Path("/")
+@Path("/products")
 @Stateless
 @LocalBean
 public class ProductService
@@ -51,7 +51,7 @@ public class ProductService
 
 	private Logger logger = Logger.getLogger( getClass().getName() );
 
-	@Path("/products")
+	@Path("/")
 	@POST
 	@Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
 	@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -71,7 +71,7 @@ public class ProductService
 	}
 
 	@GET
-	@Path("/products")
+	@Path("/")
 	@Produces({"application/json", "application/xml"})
 	public Collection<Product> getProducts(@Context UriInfo uriInfo)
 	{
@@ -119,7 +119,7 @@ public class ProductService
 	}
 
 	@GET
-	@Path("/products/{sku}")
+	@Path("/{sku}")
 	@Produces({"application/json", "application/xml"})
 	public Product getProduct(@PathParam("sku") Long sku)
 	{
@@ -140,7 +140,7 @@ public class ProductService
 	}
 
 	@PUT
-	@Path("/products/{sku}")
+	@Path("/{sku}")
 	@Consumes({"application/json", "application/xml"})
 	@Produces({"application/json", "application/xml"})
 	public Product updateProduct(@PathParam("sku") Long sku, Product product)
@@ -161,7 +161,7 @@ public class ProductService
 	}
 
 	@PATCH
-	@Path("/products/{sku}")
+	@Path("/{sku}")
 	@Consumes({"application/json", "application/xml"})
 	@Produces({"application/json", "application/xml"})
 	public Product partiallyUpdateProduct(@PathParam("sku") Long sku, Product product)
@@ -182,7 +182,7 @@ public class ProductService
 	}
 
 	@DELETE
-	@Path("/products/{sku}")
+	@Path("/{sku}")
 	@Consumes({"application/json", "application/xml"})
 	@Produces({"application/json", "application/xml"})
 	public void deleteProduct(@PathParam("sku") Long sku)
@@ -237,7 +237,7 @@ public class ProductService
 	}
 
 	@POST
-	@Path("/reduce/")
+	@Path("/reduce")
 	@Consumes({"application/json", "application/xml"})
 	@Produces({"application/json", "application/xml"})
 	public void reduceInventory(Inventory[] inventoryAdjustment)
