@@ -6,7 +6,7 @@
     <groupId>com.redhat.refarch.microservices</groupId>
     <artifactId>gateway</artifactId>
     <version>1.0</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
 
     <!-- created with archetype:
     https://maven.repository.redhat.com/ga/io/fabric8/archetypes/archetypes-catalog/2.2.195.redhat-000004/archetypes-catalog-2.2.195.redhat-000004-archetype-catalog.xml
