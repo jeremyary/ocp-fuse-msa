@@ -18,6 +18,7 @@ package com.redhat.refarch.microservices.gateway.routes;
 import org.apache.camel.Exchange;
 import org.apache.camel.Headers;
 import org.apache.camel.LoggingLevel;
+import org.apache.camel.Processor;
 import org.apache.camel.http.common.HttpMethods;
 import org.apache.camel.model.rest.RestBindingMode;
 import org.apache.camel.spring.SpringRouteBuilder;
@@ -38,24 +39,52 @@ public class GatewayRoute extends SpringRouteBuilder {
     @Override
     public void configure() throws Exception {
 
-        from("jetty:http://0.0.0.0:9091/?matchOnUriPrefix=true")
-            .choice()
-                .when(simple("${in.header.CamelHttpPath} starts with 'products'"))
-                    .to("jetty:http://product-service:8080/" + header("CamelHttpPath") +
-                            "?bridgeEndpoint=true&throwExceptionOnFailure=false")
+        from("restlet:http://0.0.0.0:9091/{endpoint}?restletMethod=post,get,put,patch,delete&restletUriPatterns=#uriTemplates")
+                .routeId("api-gateway")
+                .to("log:INFO?showBody=true&showHeaders=true")
+                .process(new Processor() {
+                    public void process(Exchange exchange) throws Exception {
 
-                .when(simple("${in.header.CamelHttpPath} starts with 'billing'"))
-                    .to("jetty:http://billing-service:8080/" + header("CamelHttpPath") +
-                            "?bridgeEndpoint=true&throwExceptionOnFailure=false")
+                        String uriPattern = exchange.getIn().getHeader("endpoint").toString();
+                        String outPattern;
 
-                .when(simple("${in.header.CamelHttpPath} starts with 'customers'"))
-                    .to("jetty:http://sales-service:8080/" + header("CamelHttpPath") +
-                            "?bridgeEndpoint=true&throwExceptionOnFailure=false")
+                        if(uriPattern.startsWith("product"))
+                            outPattern = "product-service";
 
-                .otherwise()
-                    .log(LoggingLevel.ERROR, "Unmapped context path received in API gateway")
-                    .throwException(MessageDeliveryException.class, "Unmapped context path received in API gateway")
-            .end();
+                        else if(uriPattern.startsWith("billing"))
+                            outPattern = "billing-service";
+
+                        else if(uriPattern.startsWith("sales"))
+                            outPattern = "sales-service";
+                        else
+                            throw new Exception("unknown context received on API Gateway");
+
+                        exchange.getIn().setHeader("rcpt-service", outPattern);
+                    }
+                })
+                .log(LoggingLevel.INFO, "finished processing api request...")
+                .to("log:INFO?showBody=true&showHeaders=true")
+                .recipientList(simple("http://${headers.rcpt-service}:8080/" +
+                        "${headers.endpoint}?bridgeEndpoint=true&restletMethod=${headers.CamelHttpMethod}"));
+
+//        from("jetty:http://0.0.0.0:9091/?matchOnUriPrefix=true")
+//            .choice()
+//                .when(simple("${in.header.CamelHttpPath} starts with 'products'"))
+//                    .to("jetty:http://product-service:8080/" + header("CamelHttpPath") +
+//                            "?bridgeEndpoint=true&throwExceptionOnFailure=false")
+//
+//                .when(simple("${in.header.CamelHttpPath} starts with 'billing'"))
+//                    .to("jetty:http://billing-service:8080/" + header("CamelHttpPath") +
+//                            "?bridgeEndpoint=true&throwExceptionOnFailure=false")
+//
+//                .when(simple("${in.header.CamelHttpPath} starts with 'customers'"))
+//                    .to("jetty:http://sales-service:8080/" + header("CamelHttpPath") +
+//                            "?bridgeEndpoint=true&throwExceptionOnFailure=false")
+//
+//                .otherwise()
+//                    .log(LoggingLevel.ERROR, "Unmapped context path received in API gateway")
+//                    .throwException(MessageDeliveryException.class, "Unmapped context path received in API gateway")
+//            .end();
 
 //        errorHandler(
 //                deadLetterChannel("amq:billing.deadLetter")

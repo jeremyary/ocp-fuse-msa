@@ -16,8 +16,12 @@
 package com.redhat.refarch.microservices.gateway;
 
 import org.apache.camel.spring.javaconfig.CamelConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.Arrays;
+import java.util.List;
 
 /***
  * @author jary@redhat.com
@@ -25,4 +29,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ComponentScan("com.redhat.refarch.microservices.gateway")
 public class CamelConfig extends CamelConfiguration {
+
+    @Bean
+    public List<String> uriTemplates() {
+        return Arrays.asList(
+                "/products/{sku}"
+        );
+    }
 }
