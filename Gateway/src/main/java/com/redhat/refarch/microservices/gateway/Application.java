@@ -23,7 +23,7 @@ import org.springframework.context.annotation.ImportResource;
  * The Spring-boot main class.
  */
 @SpringBootApplication
-@ImportResource({"classpath:spring/amq.xml", "classpath:spring/camel-context.xml"})
+@ImportResource({"classpath:spring/amq.xml"})
 public class Application {
 
     public static void main(String[] args) {
