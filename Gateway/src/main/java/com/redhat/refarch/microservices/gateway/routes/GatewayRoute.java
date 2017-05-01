@@ -41,14 +41,21 @@ public class GatewayRoute extends SpringRouteBuilder {
         from("jetty:http://0.0.0.0:9091/?matchOnUriPrefix=true")
             .choice()
                 .when(simple("${in.header.CamelHttpPath} starts with 'products'"))
-                    .log(LoggingLevel.INFO, "************************ PRODUCTS ******************")
+                    .removeHeaders("CamelHttp*")
+                    .to("jetty:http://product-service:8080/?bridgeEndpoint=true")
+
                 .when(simple("${in.header.CamelHttpPath} starts with 'billing'"))
-                    .log(LoggingLevel.INFO, "************************ BILLING ******************")
+                    .removeHeaders("CamelHttp*")
+                    .to("jetty:http://billing-service:8080/?bridgeEndpoint=true")
+
                 .when(simple("${in.header.CamelHttpPath} starts with 'customers'"))
-                    .log(LoggingLevel.INFO, "************************ CUSTOMERS ******************")
-            .to("log:INFO?showBody=true&showHeaders=true")
-            .to("amq:deadend")
-            .throwException(MessageDeliveryException.class, "stahp");
+                    .removeHeaders("CamelHttp*")
+                    .to("jetty:http://sales-service:8080/?bridgeEndpoint=true")
+
+                .otherwise()
+                    .log(LoggingLevel.ERROR, "Unmapped context path received in API gateway")
+                    .throwException(MessageDeliveryException.class, "Unmapped context path received in API gateway")
+            .end();
 
 //        errorHandler(
 //                deadLetterChannel("amq:billing.deadLetter")
