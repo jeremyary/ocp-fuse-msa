@@ -36,78 +36,78 @@ public class SalesGatewayRoute extends SpringRouteBuilder {
 
                 .post()
                     .id("addCustomer")
-                    .to("")
+                    .to("amq:deadend")
 
                 .get()
                     .id("getCustomer")
-                    .to("")
+                    .to("amq:deadend")
 
                 .get("/{id}")
                     .id("getCustomerById")
-                    .to("")
+                    .to("amq:deadend")
 
                 .put("/{id}")
                     .id("updateCustomer")
-                    .to("")
+                    .to("amq:deadend")
 
                 .patch("/{id}")
                     .id("partiallyUpdateCustomer")
-                    .to("")
+                    .to("amq:deadend")
 
                 .delete("/{id}")
                     .id("deleteCustomer")
-                    .to("")
+                    .to("amq:deadend")
 
                 .post("/{customerId}/orders")
                     .id("addOrderToCustomer")
-                    .to("")
+                    .to("amq:deadend")
 
                 .get("/{customerId}/orders")
                     .id("getOrdersForCustomer")
-                    .to("")
+                    .to("amq:deadend")
 
                 .get("/{customerId}/orders/{orderId}")
                     .id("getOrderByOrderId")
-                    .to("")
+                    .to("amq:deadend")
 
                 .put("/{customerId}/orders/{orderId}")
                     .id("updateOrder")
-                    .to("")
+                    .to("amq:deadend")
 
                 .patch("/{customerId}/orders/{orderId}")
                     .id("partiallyUpdateOrder")
-                    .to("")
+                    .to("amq:deadend")
 
                 .delete("/{customerId}/orders/{orderId}")
                     .id("deleteOrder")
-                    .to("")
+                    .to("amq:deadend")
 
                 .post("/{customerId}/orders/{orderId}/orderItems")
                     .id("addOrderItem")
-                    .to("")
+                    .to("amq:deadend")
 
                 .get("/{customerId}/orders/{orderId}/orderItems")
                     .id("listOrderItems")
-                    .to("")
+                    .to("amq:deadend")
 
                 .get("/{customerId}/orders/{orderId}/orderItems/{orderItemId}")
                     .id("getOrderItemByOrderItemId")
-                    .to("")
+                    .to("amq:deadend")
 
                 .put("/{customerId}/orders/{orderId}/orderItems/{orderItemId}")
                     .id("updateOrderItem")
-                    .to("")
+                    .to("amq:deadend")
 
                 .patch("/{customerId}/orders/{orderId}/orderItems/{orderItemId}")
                     .id("partiallyUpdateOrderItem")
-                    .to("")
+                    .to("amq:deadend")
 
                 .delete("/{customerId}/orders/{orderId}/orderItems/{orderItemId}")
                     .id("deleteOrderItem")
-                    .to("")
+                    .to("amq:deadend")
 
                 .post("/authenticate")
                     .id("authenticateCustomer")
-                    .to("");
+                    .to("amq:deadend");
     }
 }

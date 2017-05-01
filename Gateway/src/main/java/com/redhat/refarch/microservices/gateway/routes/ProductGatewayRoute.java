@@ -36,38 +36,38 @@ public class ProductGatewayRoute extends SpringRouteBuilder {
 
                 .post()
                     .id("addProduct")
-                    .to("")
+                    .to("amq:deadend")
 
                 .get()
                     .id("getProducts")
-                    .to("")
+                    .to("amq:deadend")
 
                 .get("/{sku}")
                     .id("getProductBySku")
-                    .to("")
+                    .to("amq:deadend")
 
                 .put("/{sku}")
                     .id("updateProduct")
-                    .to("")
+                    .to("amq:deadend")
 
                 .patch("/{sku}")
                     .id("partialllyUpdateProduct")
-                    .to("")
+                    .to("amq:deadend")
 
                 .delete("/{sku}")
                     .id("deleteProduct")
-                    .to("")
+                    .to("amq:deadend")
 
                 .post("/keywords")
                     .id("addKeywords")
-                    .to("")
+                    .to("amq:deadend")
 
                 .post("/classify/{sku}")
                     .id("classifyProduct")
-                    .to("")
+                    .to("amq:deadend")
 
                 .post("/reduce")
                     .id("reduceProductInInventory")
-                    .to("");
+                    .to("amq:deadend");
     }
 }

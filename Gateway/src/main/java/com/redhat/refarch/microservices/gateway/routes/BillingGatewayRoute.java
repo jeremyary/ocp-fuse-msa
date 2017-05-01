@@ -32,25 +32,29 @@ public class BillingGatewayRoute extends SpringRouteBuilder {
     @Override
     public void configure() throws Exception {
 
+        errorHandler(
+                deadLetterChannel("amq:billing.deadLetter")
+                        .maximumRedeliveries(3)
+                        .redeliveryDelay(3000)
+        );
+
         rest("/billing")
 
                 .post("/process")
                     .id("processOrder")
-//                    .to("direct:newOrders")
-                    .to("amq:billing.orders.new?transferException=true")
+                    .to("direct:newOrders")
 
                 .post("/refund/{transactionNumber}")
                     .id("refundOrder")
-//                    .to("direct:refunds");
-                    .to("amq:billing.orders.refund?transferException=true");
+                    .to("direct:refunds");
 
         // dropping down to direct routes so that we can use inOut, unavailable on the REST DSL methods
-//        from("direct:newOrders")
-//                .routeId("sendNewOrdersToQueue")
-//                .inOut("amq:billing.orders.new?transferException=true");
-//
-//        from("direct:refunds")
-//                .routeId("sendRefundOrdersToQueue")
-//                .inOut("amq:billing.orders.refund?transferException=true");
+        from("direct:newOrders")
+                .routeId("sendNewOrdersToQueue")
+                .inOut("amq:billing.orders.new?transferException=true");
+
+        from("direct:refunds")
+                .routeId("sendRefundOrdersToQueue")
+                .inOut("amq:billing.orders.refund?transferException=true");
     }
 }
