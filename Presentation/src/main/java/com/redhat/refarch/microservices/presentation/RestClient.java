@@ -476,7 +476,7 @@ public class RestClient {
             default:
                 throw new IllegalStateException("Unknown service");
         }
-        uriBuilder.setPort(8080);
+        uriBuilder.setPort(service.equals(Service.Gateway) ? 9091 : 8080);
         for (Object part : path) {
             stringWriter.append('/').append(String.valueOf(part));
         }
