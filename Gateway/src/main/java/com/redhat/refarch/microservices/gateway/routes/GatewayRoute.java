@@ -21,6 +21,7 @@ import org.apache.camel.LoggingLevel;
 import org.apache.camel.http.common.HttpMethods;
 import org.apache.camel.model.rest.RestBindingMode;
 import org.apache.camel.spring.SpringRouteBuilder;
+import org.springframework.messaging.MessageDeliveryException;
 import org.springframework.stereotype.Component;
 
 /***
@@ -38,8 +39,16 @@ public class GatewayRoute extends SpringRouteBuilder {
     public void configure() throws Exception {
 
         from("jetty:http://0.0.0.0:9091/?matchOnUriPrefix=true")
+            .choice()
+                .when(simple("${in.header.CamelHttpPath} starts with &#39;products&#39;"))
+                    .log(LoggingLevel.INFO, "************************ PRODUCTS ******************")
+                .when(simple("${in.header.CamelHttpPath} starts with &#39;billing&#39;"))
+                    .log(LoggingLevel.INFO, "************************ BILLING ******************")
+                .when(simple("${in.header.CamelHttpPath} starts with &#39;customers&#39;"))
+                    .log(LoggingLevel.INFO, "************************ CUSTOMERS ******************")
             .to("log:INFO?showBody=true&showHeaders=true")
-            .to("amq:deadend");
+            .to("amq:deadend")
+            .throwException(MessageDeliveryException.class, "stahp");
 
 //        errorHandler(
 //                deadLetterChannel("amq:billing.deadLetter")
