@@ -534,7 +534,7 @@ public class RestClient {
     }
 
     private static void logInfo(String message) {
-        Logger.getLogger(RestClient.class.getName()).log(Level.INFO, message);
+        Logger.getLogger(RestClient.class.getName()).log(Level.ALL, message);
     }
 
     public static Long addProduct(JSONObject jsonObject) throws JSONException, ClientProtocolException, IOException, URISyntaxException {

@@ -67,15 +67,18 @@ public class ProductGatewayRoute extends SpringRouteBuilder {
 //                    .to("direct:reduceProductInInventory");
         
         from("direct:addProduct")
+                .routeId("addProduct")
                 .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.POST))
                 .to("http4://product-service/products");
 
         from("direct:getProducts")
+                .routeId("getProducts")
                 .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.GET))
                 .to("http4://product-service/products");
 
 
         from("direct:getProductBySku")
+                .routeId("getProductBySku")
                 .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.GET))
                 .to("http4://product-service/products/" + header("sku"));
 
