@@ -46,7 +46,7 @@ public class GatewayRoute extends SpringRouteBuilder {
                 .enableCORS(true)
                 .bindingMode(RestBindingMode.json)
                 .dataFormatProperty("prettyPrint", "true")
-                .port(8080);
+                .port(9091);
 
         rest("/products")
                 .id("products-API-gateway")
