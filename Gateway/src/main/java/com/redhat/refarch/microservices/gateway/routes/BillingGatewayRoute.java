@@ -38,6 +38,8 @@ public class BillingGatewayRoute extends SpringRouteBuilder {
                         .redeliveryDelay(3000)
         );
 
+        restConfiguration().component("servlet");
+
         rest("/billing")
 
                 .post("/process")

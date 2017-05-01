@@ -32,6 +32,8 @@ public class ProductGatewayRoute extends SpringRouteBuilder {
     @Override
     public void configure() throws Exception {
 
+        restConfiguration().component("servlet");
+
         rest("/products")
 
                 .post()
