@@ -185,6 +185,7 @@ public class RestClient {
         logInfo("Executing " + get);
         HttpResponse response = client.execute(get);
         String responseString = EntityUtils.toString(response.getEntity());
+        logInfo("Got response " + responseString);
         JSONObject jsonResponse = new JSONObject(responseString);
         orderItem.setAvailability(jsonResponse.getInt("availability"));
         orderItem.setDescription(jsonResponse.getString("description"));
