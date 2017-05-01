@@ -180,7 +180,7 @@ public class RestClient {
 
     private static void populateProductInfo(OrderItem orderItem) throws ClientProtocolException, IOException, JSONException, URISyntaxException {
         HttpClient client = new DefaultHttpClient();
-        URIBuilder uriBuilder = getUriBuilder(Service.Product, "products", orderItem.getSku());
+        URIBuilder uriBuilder = getUriBuilder(Service.Gateway, "products", orderItem.getSku());
         HttpGet get = new HttpGet(uriBuilder.build());
         logInfo("Executing " + get);
         HttpResponse response = client.execute(get);

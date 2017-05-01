@@ -15,6 +15,9 @@
  */
 package com.redhat.refarch.microservices.gateway.routes;
 
+import org.apache.camel.Exchange;
+import org.apache.camel.Headers;
+import org.apache.camel.http.common.HttpMethods;
 import org.apache.camel.spring.SpringRouteBuilder;
 import org.springframework.stereotype.Component;
 
@@ -37,39 +40,62 @@ public class ProductGatewayRoute extends SpringRouteBuilder {
         rest("/products")
 
                 .post()
-                    .id("addProduct")
-                    .to("amq:deadend")
+                    .to("direct:addProduct")
 
                 .get()
-                    .id("getProducts")
-                    .to("amq:deadend")
-
+                    .to("direct:getProducts")
+                    
                 .get("/{sku}")
-                    .id("getProductBySku")
-                    .to("amq:deadend")
+                    .to("direct:getProductBySku");
+                    
+//                .put("/{sku}")
+//                    .to("direct:updateProduct")
+//
+//                .patch("/{sku}")
+//                    .to("direct:partialllyUpdateProduct")
+//
+//                .delete("/{sku}")
+//                    .to("direct:deleteProduct")
+//
+//                .post("/keywords")
+//                    .to("direct:addKeywords")
+//
+//                .post("/classify/{sku}")
+//                    .to("direct:classifyProduct")
+//
+//                .post("/reduce")
+//                    .to("direct:reduceProductInInventory");
+        
+        from("direct:addProduct")
+                .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.POST))
+                .to("http4://product-service/products");
 
-                .put("/{sku}")
-                    .id("updateProduct")
-                    .to("amq:deadend")
+        from("direct:getProducts")
+                .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.GET))
+                .to("http4://product-service/products");
 
-                .patch("/{sku}")
-                    .id("partialllyUpdateProduct")
-                    .to("amq:deadend")
 
-                .delete("/{sku}")
-                    .id("deleteProduct")
-                    .to("amq:deadend")
+        from("direct:getProductBySku")
+                .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.GET))
+                .to("http4://product-service/products/" + header("sku"));
 
-                .post("/keywords")
-                    .id("addKeywords")
-                    .to("amq:deadend")
+//        from("direct:updateProduct")
+//
+//
+//        from("direct:partialllyUpdateProduct")
+//
+//
+//        from("direct:deleteProduct")
+//
+//
+//        from("direct:addKeywords")
+//
+//
+//        from("direct:classifyProduct")
+//
+//
+//        from("direct:reduceProductInInventory");
 
-                .post("/classify/{sku}")
-                    .id("classifyProduct")
-                    .to("amq:deadend")
 
-                .post("/reduce")
-                    .id("reduceProductInInventory")
-                    .to("amq:deadend");
     }
 }

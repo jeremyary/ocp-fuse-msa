@@ -43,14 +43,12 @@ public class BillingGatewayRoute extends SpringRouteBuilder {
         rest("/billing")
 
                 .post("/process")
-                    .id("processOrder")
                     .to("direct:newOrders")
 
                 .post("/refund/{transactionNumber}")
-                    .id("refundOrder")
                     .to("direct:refunds");
 
-        // dropping down to direct routes so that we can use inOut, unavailable on the REST DSL methods
+        // dropping down to direct routes so that we can use inOut
         from("direct:newOrders")
                 .routeId("sendNewOrdersToQueue")
                 .inOut("amq:billing.orders.new?transferException=true");
