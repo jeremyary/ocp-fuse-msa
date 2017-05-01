@@ -37,31 +37,35 @@ public class GatewayRoute extends SpringRouteBuilder {
     @Override
     public void configure() throws Exception {
 
-        errorHandler(
-                deadLetterChannel("amq:billing.deadLetter")
-                        .maximumRedeliveries(3)
-                        .redeliveryDelay(3000)
-        );
+        from("jetty:http://0.0.0.0:9091/?matchOnUriPrefix=true")
+            .to("log:INFO?showBody=true&showHeaders=true")
+            .to("amq:deadend");
 
-        restConfiguration().component("jetty")
-                .enableCORS(true)
-                .bindingMode(RestBindingMode.json)
-                .dataFormatProperty("prettyPrint", "true")
-                .port(9091);
-
-        rest("/products")
-                .id("products-API-gateway")
-                .produces("application/json")
-                .consumes("application/json")
-
-                .post()
-                    .to("direct:addProduct")
-
-                .get()
-                    .to("direct:getProducts")
-                    
-                .get("/{sku}")
-                    .to("direct:getProductBySku");
+//        errorHandler(
+//                deadLetterChannel("amq:billing.deadLetter")
+//                        .maximumRedeliveries(3)
+//                        .redeliveryDelay(3000)
+//        );
+//
+//        restConfiguration().component("jetty")
+//                .enableCORS(true)
+//                .bindingMode(RestBindingMode.json)
+//                .dataFormatProperty("prettyPrint", "true")
+//                .port(9091);
+//
+//        rest("/products")
+//                .id("products-API-gateway")
+//                .produces("application/json")
+//                .consumes("application/json")
+//
+//                .post()
+//                    .to("direct:addProduct")
+//
+//                .get()
+//                    .to("direct:getProducts")
+//
+//                .get("/{sku}")
+//                    .to("direct:getProductBySku");
                     
 //                .put("/{sku}")
 //                    .to("direct:updateProduct")
@@ -81,24 +85,24 @@ public class GatewayRoute extends SpringRouteBuilder {
 //                .post("/reduce")
 //                    .to("direct:reduceProductInInventory");
         
-        from("direct:addProduct")
-                .routeId("addProduct")
-                .log(LoggingLevel.INFO, "addProduct Rest call, forwarding to product-service: " + body())
-                .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.POST))
-                .to("http4://product-service/products");
-
-        from("direct:getProducts")
-                .routeId("getProducts")
-                .log(LoggingLevel.INFO, "getProducts Rest call, forwarding to product-service: " + body())
-                .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.GET))
-                .to("http4://product-service/products");
-
-
-        from("direct:getProductBySku")
-                .routeId("getProductBySku")
-                .log(LoggingLevel.INFO, "getProductBySku Rest call, forwarding to product-service: " + body())
-                .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.GET))
-                .to("http4://product-service/products/" + header("sku"));
+//        from("direct:addProduct")
+//                .routeId("addProduct")
+//                .log(LoggingLevel.INFO, "addProduct Rest call, forwarding to product-service: " + body())
+//                .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.POST))
+//                .to("http4://product-service/products");
+//
+//        from("direct:getProducts")
+//                .routeId("getProducts")
+//                .log(LoggingLevel.INFO, "getProducts Rest call, forwarding to product-service: " + body())
+//                .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.GET))
+//                .to("http4://product-service/products");
+//
+//
+//        from("direct:getProductBySku")
+//                .routeId("getProductBySku")
+//                .log(LoggingLevel.INFO, "getProductBySku Rest call, forwarding to product-service: " + body())
+//                .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.GET))
+//                .to("http4://product-service/products/" + header("sku"));
 
 //        from("direct:updateProduct")
 //
@@ -117,105 +121,105 @@ public class GatewayRoute extends SpringRouteBuilder {
 //
 //        from("direct:reduceProductInInventory");
 
-        rest("/billing")
-                .id("billing-API-gateway")
-                .produces("application/json")
-                .consumes("application/json")
-
-                .post("/process")
-                .to("direct:newOrders")
-
-                .post("/refund/{transactionNumber}")
-                .to("direct:refunds");
-
-        // dropping down to direct routes so that we can use inOut
-        from("direct:newOrders")
-                .routeId("sendNewOrdersToQueue")
-                .inOut("amq:billing.orders.new?transferException=true");
-
-        from("direct:refunds")
-                .routeId("sendRefundOrdersToQueue")
-                .inOut("amq:billing.orders.refund?transferException=true");
-
-        rest("/customers")
-                .id("sales-API-gateway")
-                .produces("application/json")
-                .consumes("application/json")
-
-                .post()
-                .id("addCustomer")
-                .to("amq:deadend")
-
-                .get()
-                .id("getCustomer")
-                .to("amq:deadend")
-
-                .get("/{id}")
-                .id("getCustomerById")
-                .to("amq:deadend")
-
-                .put("/{id}")
-                .id("updateCustomer")
-                .to("amq:deadend")
-
-                .patch("/{id}")
-                .id("partiallyUpdateCustomer")
-                .to("amq:deadend")
-
-                .delete("/{id}")
-                .id("deleteCustomer")
-                .to("amq:deadend")
-
-                .post("/{customerId}/orders")
-                .id("addOrderToCustomer")
-                .to("amq:deadend")
-
-                .get("/{customerId}/orders")
-                .id("getOrdersForCustomer")
-                .to("amq:deadend")
-
-                .get("/{customerId}/orders/{orderId}")
-                .id("getOrderByOrderId")
-                .to("amq:deadend")
-
-                .put("/{customerId}/orders/{orderId}")
-                .id("updateOrder")
-                .to("amq:deadend")
-
-                .patch("/{customerId}/orders/{orderId}")
-                .id("partiallyUpdateOrder")
-                .to("amq:deadend")
-
-                .delete("/{customerId}/orders/{orderId}")
-                .id("deleteOrder")
-                .to("amq:deadend")
-
-                .post("/{customerId}/orders/{orderId}/orderItems")
-                .id("addOrderItem")
-                .to("amq:deadend")
-
-                .get("/{customerId}/orders/{orderId}/orderItems")
-                .id("listOrderItems")
-                .to("amq:deadend")
-
-                .get("/{customerId}/orders/{orderId}/orderItems/{orderItemId}")
-                .id("getOrderItemByOrderItemId")
-                .to("amq:deadend")
-
-                .put("/{customerId}/orders/{orderId}/orderItems/{orderItemId}")
-                .id("updateOrderItem")
-                .to("amq:deadend")
-
-                .patch("/{customerId}/orders/{orderId}/orderItems/{orderItemId}")
-                .id("partiallyUpdateOrderItem")
-                .to("amq:deadend")
-
-                .delete("/{customerId}/orders/{orderId}/orderItems/{orderItemId}")
-                .id("deleteOrderItem")
-                .to("amq:deadend")
-
-                .post("/authenticate")
-                .id("authenticateCustomer")
-                .to("amq:deadend");
+//        rest("/billing")
+//                .id("billing-API-gateway")
+//                .produces("application/json")
+//                .consumes("application/json")
+//
+//                .post("/process")
+//                .to("direct:newOrders")
+//
+//                .post("/refund/{transactionNumber}")
+//                .to("direct:refunds");
+//
+//        // dropping down to direct routes so that we can use inOut
+//        from("direct:newOrders")
+//                .routeId("sendNewOrdersToQueue")
+//                .inOut("amq:billing.orders.new?transferException=true");
+//
+//        from("direct:refunds")
+//                .routeId("sendRefundOrdersToQueue")
+//                .inOut("amq:billing.orders.refund?transferException=true");
+//
+//        rest("/customers")
+//                .id("sales-API-gateway")
+//                .produces("application/json")
+//                .consumes("application/json")
+//
+//                .post()
+//                .id("addCustomer")
+//                .to("amq:deadend")
+//
+//                .get()
+//                .id("getCustomer")
+//                .to("amq:deadend")
+//
+//                .get("/{id}")
+//                .id("getCustomerById")
+//                .to("amq:deadend")
+//
+//                .put("/{id}")
+//                .id("updateCustomer")
+//                .to("amq:deadend")
+//
+//                .patch("/{id}")
+//                .id("partiallyUpdateCustomer")
+//                .to("amq:deadend")
+//
+//                .delete("/{id}")
+//                .id("deleteCustomer")
+//                .to("amq:deadend")
+//
+//                .post("/{customerId}/orders")
+//                .id("addOrderToCustomer")
+//                .to("amq:deadend")
+//
+//                .get("/{customerId}/orders")
+//                .id("getOrdersForCustomer")
+//                .to("amq:deadend")
+//
+//                .get("/{customerId}/orders/{orderId}")
+//                .id("getOrderByOrderId")
+//                .to("amq:deadend")
+//
+//                .put("/{customerId}/orders/{orderId}")
+//                .id("updateOrder")
+//                .to("amq:deadend")
+//
+//                .patch("/{customerId}/orders/{orderId}")
+//                .id("partiallyUpdateOrder")
+//                .to("amq:deadend")
+//
+//                .delete("/{customerId}/orders/{orderId}")
+//                .id("deleteOrder")
+//                .to("amq:deadend")
+//
+//                .post("/{customerId}/orders/{orderId}/orderItems")
+//                .id("addOrderItem")
+//                .to("amq:deadend")
+//
+//                .get("/{customerId}/orders/{orderId}/orderItems")
+//                .id("listOrderItems")
+//                .to("amq:deadend")
+//
+//                .get("/{customerId}/orders/{orderId}/orderItems/{orderItemId}")
+//                .id("getOrderItemByOrderItemId")
+//                .to("amq:deadend")
+//
+//                .put("/{customerId}/orders/{orderId}/orderItems/{orderItemId}")
+//                .id("updateOrderItem")
+//                .to("amq:deadend")
+//
+//                .patch("/{customerId}/orders/{orderId}/orderItems/{orderItemId}")
+//                .id("partiallyUpdateOrderItem")
+//                .to("amq:deadend")
+//
+//                .delete("/{customerId}/orders/{orderId}/orderItems/{orderItemId}")
+//                .id("deleteOrderItem")
+//                .to("amq:deadend")
+//
+//                .post("/authenticate")
+//                .id("authenticateCustomer")
+//                .to("amq:deadend");
     }
 }
