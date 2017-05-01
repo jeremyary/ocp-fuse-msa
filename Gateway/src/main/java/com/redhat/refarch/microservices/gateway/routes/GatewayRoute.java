@@ -17,6 +17,7 @@ package com.redhat.refarch.microservices.gateway.routes;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Headers;
+import org.apache.camel.LoggingLevel;
 import org.apache.camel.http.common.HttpMethods;
 import org.apache.camel.model.rest.RestBindingMode;
 import org.apache.camel.spring.SpringRouteBuilder;
@@ -82,17 +83,20 @@ public class GatewayRoute extends SpringRouteBuilder {
         
         from("direct:addProduct")
                 .routeId("addProduct")
+                .log(LoggingLevel.INFO, "addProduct Rest call, forwarding to product-service: " + body())
                 .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.POST))
                 .to("http4://product-service/products");
 
         from("direct:getProducts")
                 .routeId("getProducts")
+                .log(LoggingLevel.INFO, "getProducts Rest call, forwarding to product-service: " + body())
                 .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.GET))
                 .to("http4://product-service/products");
 
 
         from("direct:getProductBySku")
                 .routeId("getProductBySku")
+                .log(LoggingLevel.INFO, "getProductBySku Rest call, forwarding to product-service: " + body())
                 .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.GET))
                 .to("http4://product-service/products/" + header("sku"));
 
