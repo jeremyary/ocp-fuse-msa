@@ -41,13 +41,16 @@ public class GatewayRoute extends SpringRouteBuilder {
         from("jetty:http://0.0.0.0:9091/?matchOnUriPrefix=true")
             .choice()
                 .when(simple("${in.header.CamelHttpPath} starts with 'products'"))
-                    .to("jetty:http://product-service:8080/${CamelHttpPath}?bridgeEndpoint=true")
+                    .to("jetty:http://product-service:8080/" + header("CamelHttpPath") +
+                            "?bridgeEndpoint=true&throwExceptionOnFailure=false")
 
                 .when(simple("${in.header.CamelHttpPath} starts with 'billing'"))
-                    .to("jetty:http://billing-service:8080/${CamelHttpPath}?bridgeEndpoint=true")
+                    .to("jetty:http://billing-service:8080/" + header("CamelHttpPath") +
+                            "?bridgeEndpoint=true&throwExceptionOnFailure=false")
 
                 .when(simple("${in.header.CamelHttpPath} starts with 'customers'"))
-                    .to("jetty:http://sales-service:8080/${CamelHttpPath}?bridgeEndpoint=true")
+                    .to("jetty:http://sales-service:8080/" + header("CamelHttpPath") +
+                            "?bridgeEndpoint=true&throwExceptionOnFailure=false")
 
                 .otherwise()
                     .log(LoggingLevel.ERROR, "Unmapped context path received in API gateway")
