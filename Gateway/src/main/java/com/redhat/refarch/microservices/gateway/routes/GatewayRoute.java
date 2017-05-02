@@ -60,6 +60,7 @@ public class GatewayRoute extends SpringRouteBuilder {
         // and multicast to warehouses for fulfillment
         from("direct:billingRoute")
                 .routeId("billingMsgGateway")
+                .to("log:INFO?showBody=true&showHeaders=true")
                 .choice()
                     .when(header("${headers.uriPath}").startsWith("/billing/process"))
                         .multicast().parallelProcessing()
