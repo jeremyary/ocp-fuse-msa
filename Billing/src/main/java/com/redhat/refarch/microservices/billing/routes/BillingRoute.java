@@ -51,6 +51,7 @@ public class BillingRoute extends SpringRouteBuilder {
                 .log(LoggingLevel.INFO, " **** FINISHED UNMARSHAL IN PROCESSNEWORDERS *****")
                 .bean(billingService, "process")
                 .log(LoggingLevel.INFO, " **** STARTING REMARSHAL IN PROCESSNEWORDERS *****")
+                .to("log:INFO?showBody=true&showHeaders=true")
                 .marshal(dataFormatFactory.formatter(Result.class))
                 .log(LoggingLevel.INFO, " **** FINISHED REMARSHAL IN PROCESSNEWORDERS *****")
                 .to("log:INFO?showBody=true&showHeaders=true");
