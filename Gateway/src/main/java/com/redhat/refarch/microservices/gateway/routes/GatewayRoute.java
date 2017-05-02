@@ -25,6 +25,8 @@ import org.apache.camel.spring.SpringRouteBuilder;
 import org.springframework.messaging.MessageDeliveryException;
 import org.springframework.stereotype.Component;
 
+import java.net.URL;
+
 /***
  * ====================================================
  *    FORMATTING OF CAMEL DSL/ROUTE FILE DISCOURAGED:
@@ -46,16 +48,20 @@ public class GatewayRoute extends SpringRouteBuilder {
                 .process(new Processor() {
                     public void process(Exchange exchange) throws Exception {
 
-                        String uriPattern = exchange.getIn().getHeader("endpoint").toString();
+                        String url = exchange.getIn().getHeader("CamelHttpUri").toString();
+                        if(!url.startsWith("http") && !url.startsWith("https"))
+                            url = "http://" + url;
+
+                        url = new URL(url).getPath();
                         String outPattern;
 
-                        if(uriPattern.startsWith("product"))
+                        if(url.startsWith("/product"))
                             outPattern = "product-service";
 
-                        else if(uriPattern.startsWith("billing"))
+                        else if(url.startsWith("/billing"))
                             outPattern = "billing-service";
 
-                        else if(uriPattern.startsWith("sales"))
+                        else if(url.startsWith("/sales"))
                             outPattern = "sales-service";
                         else
                             throw new Exception("unknown context received on API Gateway");
@@ -66,7 +72,7 @@ public class GatewayRoute extends SpringRouteBuilder {
                 .log(LoggingLevel.INFO, "finished processing api request...")
                 .to("log:INFO?showBody=true&showHeaders=true")
                 .recipientList(simple("http://${headers.rcpt-service}:8080/" +
-                        "${headers.endpoint}?bridgeEndpoint=true&restletMethod=${headers.CamelHttpMethod}"));
+                        "{endpoint}?bridgeEndpoint=true&restletMethod=${headers.CamelHttpMethod}"));
 
 //        from("jetty:http://0.0.0.0:9091/?matchOnUriPrefix=true")
 //            .choice()
