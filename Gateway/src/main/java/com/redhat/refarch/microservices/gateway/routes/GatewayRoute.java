@@ -1,278 +1,49 @@
 /**
- *  Copyright 2005-2017 Red Hat, Inc.
- *
- *  Red Hat licenses this file to you under the Apache License, version
- *  2.0 (the "License"); you may not use this file except in compliance
- *  with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *  implied.  See the License for the specific language governing
- *  permissions and limitations under the License.
+ * Copyright 2005-2017 Red Hat, Inc.
+ * <p>
+ * Red Hat licenses this file to you under the Apache License, version
+ * 2.0 (the "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 package com.redhat.refarch.microservices.gateway.routes;
 
-import org.apache.camel.Exchange;
-import org.apache.camel.Headers;
 import org.apache.camel.LoggingLevel;
-import org.apache.camel.Processor;
-import org.apache.camel.http.common.HttpMethods;
-import org.apache.camel.model.rest.RestBindingMode;
 import org.apache.camel.spring.SpringRouteBuilder;
-import org.springframework.messaging.MessageDeliveryException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.net.URL;
-
 /***
- * ====================================================
- *    FORMATTING OF CAMEL DSL/ROUTE FILE DISCOURAGED:
- *    ROUTE CHAIN INDICATED BY ATYPICAL BREAKS/TABBING
- * ====================================================
- *
  * @author jary@redhat.com
  */
 @Component
 public class GatewayRoute extends SpringRouteBuilder {
 
+    @Autowired
+    private GatewayUriProcessor uriProcessor;
+
     @Override
     public void configure() throws Exception {
 
-        from("restlet:http://0.0.0.0:9091/{endpoint}?restletMethods=post,get,put,proppatch," +
-                "delete&restletUriPatterns=#uriTemplates")
-                .routeId("api-gateway")
+        String gatewayEndpoint = "restlet:http://0.0.0.0:9091/{endpoint}";
+
+        errorHandler(defaultErrorHandler()
+                .allowRedeliveryWhileStopping(false)
+                .maximumRedeliveries(3)
+                .redeliveryDelay(3000)
+                .retryAttemptedLogLevel(LoggingLevel.WARN));
+
+        from(gatewayEndpoint + "?restletMethods=post,get,put,proppatch,delete&restletUriPatterns=#uriTemplates")
+                .routeId("proxy-api-gateway")
+                .process(uriProcessor)
                 .to("log:INFO?showBody=true&showHeaders=true")
-                .process(new Processor() {
-                    public void process(Exchange exchange) throws Exception {
-
-                        String url = exchange.getIn().getHeader("CamelHttpUri").toString();
-                        if(!url.startsWith("http") && !url.startsWith("https"))
-                            url = "http://" + url;
-
-                        url = new URL(url).getPath();
-                        exchange.getIn().setHeader("endpoint", url);
-                        String outPattern;
-
-                        if(url.startsWith("/product"))
-                            outPattern = "product-service";
-
-                        else if(url.startsWith("/billing"))
-                            outPattern = "billing-service";
-
-                        else if(url.startsWith("/sales"))
-                            outPattern = "sales-service";
-                        else
-                            throw new Exception("unknown context received on API Gateway");
-
-                        exchange.getIn().setHeader("rcpt-service", outPattern);
-                    }
-                })
-                .log(LoggingLevel.INFO, "finished processing api request...")
-                .to("log:INFO?showBody=true&showHeaders=true")
-                .recipientList(simple("http://${headers.rcpt-service}:8080" +
-                        "${headers.endpoint}?bridgeEndpoint=true"));
-
-//        from("jetty:http://0.0.0.0:9091/?matchOnUriPrefix=true")
-//            .choice()
-//                .when(simple("${in.header.CamelHttpPath} starts with 'products'"))
-//                    .to("jetty:http://product-service:8080/" + header("CamelHttpPath") +
-//                            "?bridgeEndpoint=true&throwExceptionOnFailure=false")
-//
-//                .when(simple("${in.header.CamelHttpPath} starts with 'billing'"))
-//                    .to("jetty:http://billing-service:8080/" + header("CamelHttpPath") +
-//                            "?bridgeEndpoint=true&throwExceptionOnFailure=false")
-//
-//                .when(simple("${in.header.CamelHttpPath} starts with 'customers'"))
-//                    .to("jetty:http://sales-service:8080/" + header("CamelHttpPath") +
-//                            "?bridgeEndpoint=true&throwExceptionOnFailure=false")
-//
-//                .otherwise()
-//                    .log(LoggingLevel.ERROR, "Unmapped context path received in API gateway")
-//                    .throwException(MessageDeliveryException.class, "Unmapped context path received in API gateway")
-//            .end();
-
-//        errorHandler(
-//                deadLetterChannel("amq:billing.deadLetter")
-//                        .maximumRedeliveries(3)
-//                        .redeliveryDelay(3000)
-//        );
-//
-//        restConfiguration().component("jetty")
-//                .enableCORS(true)
-//                .bindingMode(RestBindingMode.json)
-//                .dataFormatProperty("prettyPrint", "true")
-//                .port(9091);
-//
-//        rest("/products")
-//                .id("products-API-gateway")
-//                .produces("application/json")
-//                .consumes("application/json")
-//
-//                .post()
-//                    .to("direct:addProduct")
-//
-//                .get()
-//                    .to("direct:getProducts")
-//
-//                .get("/{sku}")
-//                    .to("direct:getProductBySku");
-                    
-//                .put("/{sku}")
-//                    .to("direct:updateProduct")
-//
-//                .patch("/{sku}")
-//                    .to("direct:partialllyUpdateProduct")
-//
-//                .delete("/{sku}")
-//                    .to("direct:deleteProduct")
-//
-//                .post("/keywords")
-//                    .to("direct:addKeywords")
-//
-//                .post("/classify/{sku}")
-//                    .to("direct:classifyProduct")
-//
-//                .post("/reduce")
-//                    .to("direct:reduceProductInInventory");
-        
-//        from("direct:addProduct")
-//                .routeId("addProduct")
-//                .log(LoggingLevel.INFO, "addProduct Rest call, forwarding to product-service: " + body())
-//                .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.POST))
-//                .to("http4://product-service/products");
-//
-//        from("direct:getProducts")
-//                .routeId("getProducts")
-//                .log(LoggingLevel.INFO, "getProducts Rest call, forwarding to product-service: " + body())
-//                .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.GET))
-//                .to("http4://product-service/products");
-//
-//
-//        from("direct:getProductBySku")
-//                .routeId("getProductBySku")
-//                .log(LoggingLevel.INFO, "getProductBySku Rest call, forwarding to product-service: " + body())
-//                .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.GET))
-//                .to("http4://product-service/products/" + header("sku"));
-
-//        from("direct:updateProduct")
-//
-//
-//        from("direct:partialllyUpdateProduct")
-//
-//
-//        from("direct:deleteProduct")
-//
-//
-//        from("direct:addKeywords")
-//
-//
-//        from("direct:classifyProduct")
-//
-//
-//        from("direct:reduceProductInInventory");
-
-//        rest("/billing")
-//                .id("billing-API-gateway")
-//                .produces("application/json")
-//                .consumes("application/json")
-//
-//                .post("/process")
-//                .to("direct:newOrders")
-//
-//                .post("/refund/{transactionNumber}")
-//                .to("direct:refunds");
-//
-//        // dropping down to direct routes so that we can use inOut
-//        from("direct:newOrders")
-//                .routeId("sendNewOrdersToQueue")
-//                .inOut("amq:billing.orders.new?transferException=true");
-//
-//        from("direct:refunds")
-//                .routeId("sendRefundOrdersToQueue")
-//                .inOut("amq:billing.orders.refund?transferException=true");
-//
-//        rest("/customers")
-//                .id("sales-API-gateway")
-//                .produces("application/json")
-//                .consumes("application/json")
-//
-//                .post()
-//                .id("addCustomer")
-//                .to("amq:deadend")
-//
-//                .get()
-//                .id("getCustomer")
-//                .to("amq:deadend")
-//
-//                .get("/{id}")
-//                .id("getCustomerById")
-//                .to("amq:deadend")
-//
-//                .put("/{id}")
-//                .id("updateCustomer")
-//                .to("amq:deadend")
-//
-//                .patch("/{id}")
-//                .id("partiallyUpdateCustomer")
-//                .to("amq:deadend")
-//
-//                .delete("/{id}")
-//                .id("deleteCustomer")
-//                .to("amq:deadend")
-//
-//                .post("/{customerId}/orders")
-//                .id("addOrderToCustomer")
-//                .to("amq:deadend")
-//
-//                .get("/{customerId}/orders")
-//                .id("getOrdersForCustomer")
-//                .to("amq:deadend")
-//
-//                .get("/{customerId}/orders/{orderId}")
-//                .id("getOrderByOrderId")
-//                .to("amq:deadend")
-//
-//                .put("/{customerId}/orders/{orderId}")
-//                .id("updateOrder")
-//                .to("amq:deadend")
-//
-//                .patch("/{customerId}/orders/{orderId}")
-//                .id("partiallyUpdateOrder")
-//                .to("amq:deadend")
-//
-//                .delete("/{customerId}/orders/{orderId}")
-//                .id("deleteOrder")
-//                .to("amq:deadend")
-//
-//                .post("/{customerId}/orders/{orderId}/orderItems")
-//                .id("addOrderItem")
-//                .to("amq:deadend")
-//
-//                .get("/{customerId}/orders/{orderId}/orderItems")
-//                .id("listOrderItems")
-//                .to("amq:deadend")
-//
-//                .get("/{customerId}/orders/{orderId}/orderItems/{orderItemId}")
-//                .id("getOrderItemByOrderItemId")
-//                .to("amq:deadend")
-//
-//                .put("/{customerId}/orders/{orderId}/orderItems/{orderItemId}")
-//                .id("updateOrderItem")
-//                .to("amq:deadend")
-//
-//                .patch("/{customerId}/orders/{orderId}/orderItems/{orderItemId}")
-//                .id("partiallyUpdateOrderItem")
-//                .to("amq:deadend")
-//
-//                .delete("/{customerId}/orders/{orderId}/orderItems/{orderItemId}")
-//                .id("deleteOrderItem")
-//                .to("amq:deadend")
-//
-//                .post("/authenticate")
-//                .id("authenticateCustomer")
-//                .to("amq:deadend");
+                .recipientList(simple("http://${headers.newHost}:8080${headers.uriPath}?bridgeEndpoint=true"));
     }
 }
