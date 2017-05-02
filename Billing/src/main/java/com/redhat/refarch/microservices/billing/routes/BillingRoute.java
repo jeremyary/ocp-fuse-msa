@@ -49,7 +49,7 @@ public class BillingRoute extends SpringRouteBuilder {
 
         from("amq:billing.orders.refund?transferException=true")
                 .routeId("processRefunds")
-                .bean(Transaction.class)
+                .unmarshal(jaxb)
                 .bean(billingService, "refund");
     }
 }
