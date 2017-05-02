@@ -45,6 +45,7 @@ public class GatewayUriProcessor implements Processor {
 
         else if(url.startsWith("/customers"))
             outPattern = "sales-service";
+
         else
             throw new Exception("unknown context received on API Gateway");
 

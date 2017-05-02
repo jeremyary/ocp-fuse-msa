@@ -33,17 +33,50 @@ public class GatewayRoute extends SpringRouteBuilder {
     public void configure() throws Exception {
 
         String gatewayEndpoint = "restlet:http://0.0.0.0:9091/{endpoint}";
+        String newHost = "http://${headers.newHost}:8080${headers.uriPath}";
 
+        // error handler for all following routes
         errorHandler(defaultErrorHandler()
                 .allowRedeliveryWhileStopping(false)
                 .maximumRedeliveries(3)
                 .redeliveryDelay(3000)
                 .retryAttemptedLogLevel(LoggingLevel.WARN));
 
+        // establish restlet on 9091 to intercept all rest requests for forwarding to services
+        // calls to product-service and sales-service are passed through as we're simply mirroring the provided API
+        // that our microservices have already established
         from(gatewayEndpoint + "?restletMethods=post,get,put,proppatch,delete&restletUriPatterns=#uriTemplates")
                 .routeId("proxy-api-gateway")
                 .process(uriProcessor)
                 .to("log:INFO?showBody=true&showHeaders=true")
-                .recipientList(simple("http://${headers.newHost}:8080${headers.uriPath}?bridgeEndpoint=true"));
+                .choice()
+                    .when(simple("${headers.newHost} =~ 'billing-service'"))
+                        .to("direct:billingRoute")
+                    .otherwise()
+                        .recipientList(simple(newHost + "?bridgeEndpoint=true"))
+                .end();
+
+        // calls to billing are placed transactionally (InOut) on a msg queue for fault tolerance
+        // and multicast to warehouses for fulfillment
+        from("direct:billing")
+                .routeId("billingMsgGateway")
+                .choice()
+                    .when(header("${headers.uriPath}").startsWith("/process"))
+                        .multicast().parallelProcessing()
+                        .inOut("amq:billing.orders.new?transferException=true", "direct:warehouse")
+                        .endChoice()
+
+                    .when(header("${headers.uriPath}").startsWith("/refund"))
+                        .inOut("amq:billing.orders.refund?transferException=true")
+
+                    .otherwise()
+                        .log(LoggingLevel.ERROR, "unknown method received in billingMsgGateway")
+                .end();
+
+        // calls to warehouse are placed event-wise (InOnly, don't await reply) on a msg queue for fault tolerance
+        // and fanning out to multiple locations. In this example, we don't care which one fulfills the order.
+        from("direct:warehouse")
+                .routeId("warehouseMsgGateway")
+                .inOnly("amq:warehouse.orders.new?transferException=false");
     }
 }
