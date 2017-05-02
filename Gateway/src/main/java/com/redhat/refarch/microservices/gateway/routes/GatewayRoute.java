@@ -64,12 +64,12 @@ public class GatewayRoute extends SpringRouteBuilder {
                 .choice()
                     .when(header("uriPath").startsWith("/billing/process"))
                         .multicast().parallelProcessing()
-                        .inOut("amq:billing.orders.new?transferException=true",
+                        .inOut("amq:billing.orders.new",
                                 "direct:warehouse")
                         .endChoice()
 
                     .when(header("uriPath").startsWith("/billing/refund"))
-                        .inOut("amq:billing.orders.refund?transferException=true")
+                        .inOut("amq:billing.orders.refund")
 
                     .otherwise()
                         .log(LoggingLevel.ERROR, "unknown method received in billingMsgGateway")
@@ -79,6 +79,6 @@ public class GatewayRoute extends SpringRouteBuilder {
         // and fanning out to multiple locations. In this example, we don't care which one fulfills the order.
         from("direct:warehouse")
                 .routeId("warehouseMsgGateway")
-                .inOnly("amq:warehouse.orders.new?transferException=false");
+                .inOnly("amq:warehouse.orders.new");
     }
 }
