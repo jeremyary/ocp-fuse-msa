@@ -53,6 +53,7 @@ public class GatewayRoute extends SpringRouteBuilder {
                             url = "http://" + url;
 
                         url = new URL(url).getPath();
+                        exchange.getIn().setHeader("endpoint", url);
                         String outPattern;
 
                         if(url.startsWith("/product"))
@@ -72,7 +73,7 @@ public class GatewayRoute extends SpringRouteBuilder {
                 .log(LoggingLevel.INFO, "finished processing api request...")
                 .to("log:INFO?showBody=true&showHeaders=true")
                 .recipientList(simple("http://${headers.rcpt-service}:8080/" +
-                        "{endpoint}?bridgeEndpoint=true&restletMethod=${headers.CamelHttpMethod}"));
+                        "${headers.endpoint}?bridgeEndpoint=true&restletMethod=${headers.CamelHttpMethod}"));
 
 //        from("jetty:http://0.0.0.0:9091/?matchOnUriPrefix=true")
 //            .choice()
