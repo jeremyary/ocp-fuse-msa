@@ -15,6 +15,7 @@
  */
 package com.redhat.refarch.microservices.gateway.routes;
 
+import com.redhat.refarch.microservices.gateway.model.Transaction;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.converter.jaxb.JaxbDataFormat;
 import org.apache.camel.spi.DataFormat;
@@ -68,6 +69,7 @@ public class GatewayRoute extends SpringRouteBuilder {
                 .choice()
                     .when(header("uriPath").startsWith("/billing/process"))
                         .log(LoggingLevel.INFO, " **** STARTING MARSHAL *****")
+                        .convertBodyTo(Transaction.class)
                         .marshal(jaxb)
                         .log(LoggingLevel.INFO, " **** FINISHED MARSHAL *****")
                         .multicast().parallelProcessing()
