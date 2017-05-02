@@ -124,7 +124,7 @@
 
 		<dependency>
 			<groupId>org.apache.camel</groupId>
-			<artifactId>camel-jaxb</artifactId>
+			<artifactId>camel-jackson</artifactId>
 		</dependency>
 
 		<dependency>

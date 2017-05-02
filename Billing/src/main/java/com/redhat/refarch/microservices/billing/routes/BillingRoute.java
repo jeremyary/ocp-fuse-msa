@@ -18,8 +18,6 @@ package com.redhat.refarch.microservices.billing.routes;
 import com.redhat.refarch.microservices.billing.model.Transaction;
 import com.redhat.refarch.microservices.billing.service.BillingService;
 import org.apache.camel.LoggingLevel;
-import org.apache.camel.converter.jaxb.JaxbDataFormat;
-import org.apache.camel.spi.DataFormat;
 import org.apache.camel.spring.SpringRouteBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -38,25 +36,26 @@ public class BillingRoute extends SpringRouteBuilder {
     @Autowired
     private BillingService billingService;
 
+    @Autowired
+    private DataFormatFactory dataFormatFactory;
+
     @Override
     public void configure() throws Exception {
-
-        DataFormat jaxb = new JaxbDataFormat("com.redhat.refarch.microservices.billing.model");
 
         from("amq:billing.orders.new")
                 .routeId("processNewOrders")
                 .to("log:INFO?showBody=true&showHeaders=true")
-                .log(LoggingLevel.INFO, " **** STARTING UNMARSHAL *****")
-                .unmarshal(jaxb)
-                .log(LoggingLevel.INFO, " **** FINISHED UNMARSHAL *****")
+                .log(LoggingLevel.INFO, " **** STARTING UNMARSHAL IN PROCESSNEWORDERS *****")
+                .unmarshal(dataFormatFactory.formatter(Transaction.class))
+                .log(LoggingLevel.INFO, " **** FINISHED UNMARSHAL IN PROCESSNEWORDERS *****")
                 .bean(billingService, "process");
 
         from("amq:billing.orders.refund")
                 .routeId("processRefunds")
                 .to("log:INFO?showBody=true&showHeaders=true")
-                .log(LoggingLevel.INFO, " **** STARTING REFUND UNMARSHAL *****")
-                .unmarshal(jaxb)
-                .log(LoggingLevel.INFO, " **** FINISHED REFUND UNMARSHAL *****")
+                .log(LoggingLevel.INFO, " **** STARTING REFUND UNMARSHAL IN PROCESS REFUNDS *****")
+                .unmarshal(dataFormatFactory.formatter(Transaction.class))
+                .log(LoggingLevel.INFO, " **** FINISHED REFUND UNMARSHAL IN PROCESS REFUNDS *****")
                 .bean(billingService, "refund");
     }
 }

@@ -15,10 +15,7 @@
  */
 package com.redhat.refarch.microservices.gateway.routes;
 
-import com.redhat.refarch.microservices.gateway.model.Transaction;
 import org.apache.camel.LoggingLevel;
-import org.apache.camel.converter.jaxb.JaxbDataFormat;
-import org.apache.camel.spi.DataFormat;
 import org.apache.camel.spring.SpringRouteBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -37,7 +34,6 @@ public class GatewayRoute extends SpringRouteBuilder {
 
         String gatewayEndpoint = "restlet:http://0.0.0.0:9091/{endpoint}";
         String newHost = "http://${headers.newHost}:8080${headers.uriPath}";
-        DataFormat jaxb = new JaxbDataFormat("com.redhat.refarch.microservices.gateway.model");
 
         // error handler for all following routes
         errorHandler(defaultErrorHandler()
@@ -68,10 +64,6 @@ public class GatewayRoute extends SpringRouteBuilder {
                 .to("log:INFO?showBody=true&showHeaders=true")
                 .choice()
                     .when(header("uriPath").startsWith("/billing/process"))
-                        .log(LoggingLevel.INFO, " **** STARTING MARSHAL *****")
-                        .convertBodyTo(Transaction.class)
-                        .marshal(jaxb)
-                        .log(LoggingLevel.INFO, " **** FINISHED MARSHAL *****")
                         .multicast().parallelProcessing()
                         .inOut("amq:billing.orders.new?transferException=true&jmsMessageType=Text", "direct:warehouse")
                         .endChoice()
