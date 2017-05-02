@@ -16,6 +16,8 @@
 package com.redhat.refarch.microservices.gateway.routes;
 
 import org.apache.camel.LoggingLevel;
+import org.apache.camel.converter.jaxb.JaxbDataFormat;
+import org.apache.camel.spi.DataFormat;
 import org.apache.camel.spring.SpringRouteBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -34,6 +36,7 @@ public class GatewayRoute extends SpringRouteBuilder {
 
         String gatewayEndpoint = "restlet:http://0.0.0.0:9091/{endpoint}";
         String newHost = "http://${headers.newHost}:8080${headers.uriPath}";
+        DataFormat jaxb = new JaxbDataFormat("com.redhat.refarch.microservices.billing.model");
 
         // error handler for all following routes
         errorHandler(defaultErrorHandler()
@@ -51,6 +54,7 @@ public class GatewayRoute extends SpringRouteBuilder {
                 .to("log:INFO?showBody=true&showHeaders=true")
                 .choice()
                     .when(simple("${headers.newHost} =~ 'billing-service'"))
+
                         .to("direct:billingRoute")
                     .otherwise()
                         .recipientList(simple(newHost + "?bridgeEndpoint=true"))
@@ -63,13 +67,15 @@ public class GatewayRoute extends SpringRouteBuilder {
                 .to("log:INFO?showBody=true&showHeaders=true")
                 .choice()
                     .when(header("uriPath").startsWith("/billing/process"))
+                        .log(LoggingLevel.INFO, " **** STARTING MARSHAL *****")
+                        .marshal(jaxb)
+                        .log(LoggingLevel.INFO, " **** FINISHED MARSHAL *****")
                         .multicast().parallelProcessing()
-                        .inOut("amq:billing.orders.new",
-                                "direct:warehouse")
+                        .inOut("amq:billing.orders.new?transferException=true&jmsMessageType=Text", "direct:warehouse")
                         .endChoice()
 
                     .when(header("uriPath").startsWith("/billing/refund"))
-                        .inOut("amq:billing.orders.refund")
+                        .inOut("amq:billing.orders.refund?transferException=true&jmsMessageType=Text")
 
                     .otherwise()
                         .log(LoggingLevel.ERROR, "unknown method received in billingMsgGateway")
@@ -79,6 +85,6 @@ public class GatewayRoute extends SpringRouteBuilder {
         // and fanning out to multiple locations. In this example, we don't care which one fulfills the order.
         from("direct:warehouse")
                 .routeId("warehouseMsgGateway")
-                .inOnly("amq:warehouse.orders.new");
+                .inOnly("amq:warehouse.orders.new?transferException=false&jmsMessageType=Text");
     }
 }
