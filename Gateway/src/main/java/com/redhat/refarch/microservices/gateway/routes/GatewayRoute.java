@@ -72,8 +72,8 @@ public class GatewayRoute extends SpringRouteBuilder {
                 })
                 .log(LoggingLevel.INFO, "finished processing api request...")
                 .to("log:INFO?showBody=true&showHeaders=true")
-                .recipientList(simple("http://${headers.rcpt-service}:8080/" +
-                        "${headers.endpoint}?bridgeEndpoint=true&restletMethod=${headers.CamelHttpMethod}"));
+                .recipientList(simple("http://${headers.rcpt-service}:8080" +
+                        "${headers.endpoint}?bridgeEndpoint=true"));
 
 //        from("jetty:http://0.0.0.0:9091/?matchOnUriPrefix=true")
 //            .choice()
