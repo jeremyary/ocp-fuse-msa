@@ -36,7 +36,7 @@ public class GatewayRoute extends SpringRouteBuilder {
 
         String gatewayEndpoint = "restlet:http://0.0.0.0:9091/{endpoint}";
         String newHost = "http://${headers.newHost}:8080${headers.uriPath}";
-        DataFormat jaxb = new JaxbDataFormat("com.redhat.refarch.microservices.billing.model");
+        DataFormat jaxb = new JaxbDataFormat("com.redhat.refarch.microservices.gateway.model");
 
         // error handler for all following routes
         errorHandler(defaultErrorHandler()
