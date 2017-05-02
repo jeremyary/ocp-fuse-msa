@@ -58,7 +58,7 @@ public class GatewayRoute extends SpringRouteBuilder {
 
         // calls to billing are placed transactionally (InOut) on a msg queue for fault tolerance
         // and multicast to warehouses for fulfillment
-        from("direct:billing")
+        from("direct:billingRoute")
                 .routeId("billingMsgGateway")
                 .choice()
                     .when(header("${headers.uriPath}").startsWith("/process"))
