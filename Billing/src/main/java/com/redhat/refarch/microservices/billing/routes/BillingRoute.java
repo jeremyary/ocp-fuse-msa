@@ -17,6 +17,8 @@ package com.redhat.refarch.microservices.billing.routes;
 
 import com.redhat.refarch.microservices.billing.model.Transaction;
 import com.redhat.refarch.microservices.billing.service.BillingService;
+import org.apache.camel.converter.jaxb.JaxbDataFormat;
+import org.apache.camel.spi.DataFormat;
 import org.apache.camel.spring.SpringRouteBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -38,9 +40,11 @@ public class BillingRoute extends SpringRouteBuilder {
     @Override
     public void configure() throws Exception {
 
+        DataFormat jaxb = new JaxbDataFormat("com.redhat.refarch.microservices.billing.model");
+
         from("amq:billing.orders.new?transferException=true")
                 .routeId("processNewOrders")
-                .bean(Transaction.class)
+                .unmarshal(jaxb)
                 .bean(billingService, "process");
 
         from("amq:billing.orders.refund?transferException=true")
