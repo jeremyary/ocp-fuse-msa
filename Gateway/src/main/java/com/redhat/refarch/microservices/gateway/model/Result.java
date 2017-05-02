@@ -1,10 +1,11 @@
 package com.redhat.refarch.microservices.gateway.model;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 import java.util.Date;
 
 @XmlRootElement
-public class Result
+public class Result implements Serializable
 {
 
 	public enum Status

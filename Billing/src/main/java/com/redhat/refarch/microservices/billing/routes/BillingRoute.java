@@ -15,6 +15,7 @@
  */
 package com.redhat.refarch.microservices.billing.routes;
 
+import com.redhat.refarch.microservices.billing.model.Result;
 import com.redhat.refarch.microservices.billing.model.Transaction;
 import com.redhat.refarch.microservices.billing.service.BillingService;
 import org.apache.camel.LoggingLevel;
@@ -48,7 +49,11 @@ public class BillingRoute extends SpringRouteBuilder {
                 .log(LoggingLevel.INFO, " **** STARTING UNMARSHAL IN PROCESSNEWORDERS *****")
                 .unmarshal(dataFormatFactory.formatter(Transaction.class))
                 .log(LoggingLevel.INFO, " **** FINISHED UNMARSHAL IN PROCESSNEWORDERS *****")
-                .bean(billingService, "process");
+                .bean(billingService, "process")
+                .log(LoggingLevel.INFO, " **** STARTING REMARSHAL IN PROCESSNEWORDERS *****")
+                .marshal(dataFormatFactory.formatter(Result.class))
+                .log(LoggingLevel.INFO, " **** FINISHED REMARSHAL IN PROCESSNEWORDERS *****")
+                .to("log:INFO?showBody=true&showHeaders=true");
 
         from("amq:billing.orders.refund")
                 .routeId("processRefunds")
@@ -56,6 +61,7 @@ public class BillingRoute extends SpringRouteBuilder {
                 .log(LoggingLevel.INFO, " **** STARTING REFUND UNMARSHAL IN PROCESS REFUNDS *****")
                 .unmarshal(dataFormatFactory.formatter(Transaction.class))
                 .log(LoggingLevel.INFO, " **** FINISHED REFUND UNMARSHAL IN PROCESS REFUNDS *****")
-                .bean(billingService, "refund");
+                .bean(billingService, "refund")
+                .marshal(dataFormatFactory.formatter(Result.class));
     }
 }
