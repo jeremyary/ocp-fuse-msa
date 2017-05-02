@@ -39,7 +39,8 @@ public class GatewayRoute extends SpringRouteBuilder {
     @Override
     public void configure() throws Exception {
 
-        from("restlet:http://0.0.0.0:9091/{endpoint}?restletMethod=post,get,put,patch,delete&restletUriPatterns=#uriTemplates")
+        from("restlet:http://0.0.0.0:9091/{endpoint}?restletMethods=post,get,put,proppatch," +
+                "delete&restletUriPatterns=#uriTemplates")
                 .routeId("api-gateway")
                 .to("log:INFO?showBody=true&showHeaders=true")
                 .process(new Processor() {
