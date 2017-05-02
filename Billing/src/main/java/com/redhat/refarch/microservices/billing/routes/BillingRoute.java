@@ -15,6 +15,7 @@
  */
 package com.redhat.refarch.microservices.billing.routes;
 
+import com.redhat.refarch.microservices.billing.model.Transaction;
 import com.redhat.refarch.microservices.billing.service.BillingService;
 import org.apache.camel.spring.SpringRouteBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,10 +40,12 @@ public class BillingRoute extends SpringRouteBuilder {
 
         from("amq:billing.orders.new?transferException=true")
                 .routeId("processNewOrders")
+                .bean(Transaction.class)
                 .bean(billingService, "process");
 
         from("amq:billing.orders.refund?transferException=true")
                 .routeId("processRefunds")
+                .bean(Transaction.class)
                 .bean(billingService, "refund");
     }
 }
