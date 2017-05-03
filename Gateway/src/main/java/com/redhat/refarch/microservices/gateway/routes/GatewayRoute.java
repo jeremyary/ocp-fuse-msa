@@ -63,6 +63,7 @@ public class GatewayRoute extends SpringRouteBuilder {
                 .choice()
                     .when(header("uriPath").startsWith("/billing/process"))
                         .onCompletion().onCompleteOnly()
+                            .to("log:INFO?showBody=true&showHeaders=true")
                             .inOnly("amq:warehouse.orders.new?transferException=false&jmsMessageType=Text")
                         .end()
                         .to("amq:billing.orders.new?transferException=true&jmsMessageType=Text")
@@ -80,5 +81,7 @@ public class GatewayRoute extends SpringRouteBuilder {
         from("direct:warehouse")
                 .routeId("warehouseMsgGateway")
                 .inOnly("amq:warehouse.orders.new?transferException=false&jmsMessageType=Text");
+
+
     }
 }
