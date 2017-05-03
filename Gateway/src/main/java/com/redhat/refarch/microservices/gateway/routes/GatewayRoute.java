@@ -65,7 +65,7 @@ public class GatewayRoute extends SpringRouteBuilder {
                         .log(LoggingLevel.INFO, "***** SENDING THIS TO BILLING: *****")
                         .to("log:INFO?showBody=true&showHeaders=true")
                         .to("amq:billing.orders.new?transferException=true&jmsMessageType=Text")
-                        .when().jsonpath("$.status == 'SUCCESS'")
+                        .when().jsonpath("$..[?(@.status == 'SUCCESS')]")
                             .log(LoggingLevel.INFO, "***** SENDING THIS TO WAREHOUSE: *****")
                             .to("log:INFO?showBody=true&showHeaders=true")
                             .inOnly("amq:warehouse.orders.new?transferException=false&jmsMessageType=Text")
