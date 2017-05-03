@@ -62,11 +62,7 @@ public class GatewayRoute extends SpringRouteBuilder {
                 .routeId("billingMsgGateway")
                 .choice()
                     .when(header("uriPath").startsWith("/billing/process"))
-                        .onCompletion().onCompleteOnly()
-                            .to("log:INFO?showBody=true&showHeaders=true")
-                            .inOnly("amq:warehouse.orders.new?transferException=false&jmsMessageType=Text")
-                        .end()
-                        .to("amq:billing.orders.new?transferException=true&jmsMessageType=Text")
+                        .to("direct:processOrder")
                         .endChoice()
 
                     .when(header("uriPath").startsWith("/billing/refund"))
@@ -75,6 +71,15 @@ public class GatewayRoute extends SpringRouteBuilder {
                     .otherwise()
                         .log(LoggingLevel.ERROR, "unknown method received in billingMsgGateway")
                 .end();
+
+        from("direct:processOrder")
+                .onCompletion().onCompleteOnly()
+                    .log(LoggingLevel.INFO, "***** SENDING THIS TO PROCESS: *****")
+                    .to("log:INFO?showBody=true&showHeaders=true")
+                    .inOnly("amq:warehouse.orders.new?transferException=false&jmsMessageType=Text")
+                .end()
+                .log(LoggingLevel.INFO, "***** SENDING THIS TO PROCESS: *****")
+                .to("amq:billing.orders.new?transferException=true&jmsMessageType=Text");
 
         // calls to warehouse are placed event-wise (InOnly, don't await reply) on a msg queue for fault tolerance
         // and fanning out to multiple locations. In this example, we don't care which one fulfills the order.
