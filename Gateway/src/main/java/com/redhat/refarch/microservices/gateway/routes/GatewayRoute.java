@@ -48,7 +48,6 @@ public class GatewayRoute extends SpringRouteBuilder {
         from(gatewayEndpoint + "?restletMethods=post,get,put,proppatch,delete&restletUriPatterns=#uriTemplates")
                 .routeId("proxy-api-gateway")
                 .process(uriProcessor)
-                .to("log:INFO?showBody=true&showHeaders=true")
                 .choice()
                     .when(simple("${headers.newHost} =~ 'billing-service'"))
 
@@ -61,13 +60,9 @@ public class GatewayRoute extends SpringRouteBuilder {
         // and multicast to warehouses for fulfillment
         from("direct:billingRoute")
                 .routeId("billingMsgGateway")
-                .to("log:INFO?showBody=true&showHeaders=true")
                 .choice()
                     .when(header("uriPath").startsWith("/billing/process"))
-//                        .multicast().parallelProcessing()
                         .to("amq:billing.orders.new?transferException=true&jmsMessageType=Text", "direct:warehouse")
-                        .log(LoggingLevel.INFO, "****** about to return to presentation *****")
-                        .to("log:INFO?showBody=true&showHeaders=true")
                         .endChoice()
 
                     .when(header("uriPath").startsWith("/billing/refund"))

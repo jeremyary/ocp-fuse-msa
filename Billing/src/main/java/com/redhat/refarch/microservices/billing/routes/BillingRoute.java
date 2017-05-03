@@ -45,18 +45,10 @@ public class BillingRoute extends SpringRouteBuilder {
 
         from("amq:billing.orders.new")
                 .routeId("processNewOrders")
-                .to("log:INFO?showBody=true&showHeaders=true")
-                .log(LoggingLevel.INFO, " **** STARTING UNMARSHAL IN PROCESSNEWORDERS *****")
-                .unmarshal(dataFormatFactory.formatter(Transaction.class))
-                .log(LoggingLevel.INFO, " **** FINISHED UNMARSHAL IN PROCESSNEWORDERS *****")
-                .bean(billingService, "process")
-                .log(LoggingLevel.INFO, " **** STARTING REMARSHAL IN PROCESSNEWORDERS *****")
-                .to("log:INFO?showBody=true&showHeaders=true")
-                .marshal(dataFormatFactory.formatter(Result.class))
-                .log(LoggingLevel.INFO, " **** FINISHED REMARSHAL IN PROCESSNEWORDERS *****")
-                .to("log:INFO?showBody=true&showHeaders=true")
-                .convertBodyTo(String.class)
-                .to("log:INFO?showBody=true&showHeaders=true");
+//                .unmarshal(dataFormatFactory.formatter(Transaction.class))
+                .bean(billingService, "process");
+//                .marshal(dataFormatFactory.formatter(Result.class))
+//                .convertBodyTo(String.class);
 
         from("amq:billing.orders.refund")
                 .routeId("processRefunds")
