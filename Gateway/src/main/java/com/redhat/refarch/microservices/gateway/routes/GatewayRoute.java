@@ -64,7 +64,7 @@ public class GatewayRoute extends SpringRouteBuilder {
                 .to("log:INFO?showBody=true&showHeaders=true")
                 .choice()
                     .when(header("uriPath").startsWith("/billing/process"))
-                        .multicast().parallelProcessing()
+//                        .multicast().parallelProcessing()
                         .to("amq:billing.orders.new?transferException=true&jmsMessageType=Text", "direct:warehouse")
                         .log(LoggingLevel.INFO, "****** about to return to presentation *****")
                         .to("log:INFO?showBody=true&showHeaders=true")
