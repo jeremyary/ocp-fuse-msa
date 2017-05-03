@@ -89,7 +89,7 @@ public class GatewayRoute extends SpringRouteBuilder {
                     .endChoice()
 
                     .when(header("uriPath").startsWith("/billing/refund"))
-                        .log(LoggingLevel.INFO, "[${exchangeIdbilling/refund request, sending to amq: ")
+                        .log(LoggingLevel.INFO, "[${exchangeId}] billing/refund request, sending to amq: ")
                         .to("log:INFO?showBody=true&showHeaders=true")
                         .to("amq:billing.orders.refund?transferException=true&jmsMessageType=Text")
 

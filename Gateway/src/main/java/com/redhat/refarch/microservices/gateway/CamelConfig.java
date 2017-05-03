@@ -15,6 +15,8 @@
  */
 package com.redhat.refarch.microservices.gateway;
 
+import org.apache.camel.CamelContext;
+import org.apache.camel.spring.boot.CamelContextConfiguration;
 import org.apache.camel.spring.javaconfig.CamelConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -29,6 +31,21 @@ import java.util.List;
 @Configuration
 @ComponentScan("com.redhat.refarch.microservices.gateway")
 public class CamelConfig extends CamelConfiguration {
+
+    @Bean
+    CamelContextConfiguration contextConfiguration() {
+        return new CamelContextConfiguration() {
+            @Override
+            public void beforeApplicationStart(CamelContext context) {
+                context.setTracing(true);
+            }
+
+            @Override
+            public void afterApplicationStart(CamelContext context) {
+                // your custom configuration goes here
+            }
+        };
+    }
 
     @Bean
     public List<String> uriTemplates() {
