@@ -63,17 +63,8 @@ public class GatewayRoute extends SpringRouteBuilder {
                 .routeId("billingMsgGateway")
                 .choice()
                     .when(header("uriPath").startsWith("/billing/process"))
-                        .log(LoggingLevel.INFO, "***** SENDING THIS TO BILLING: *****")
-                        .to("log:INFO?showBody=true&showHeaders=true")
                         .to("amq:billing.orders.new?transferException=true&jmsMessageType=Text")
-                        .log(LoggingLevel.INFO, "***** RESPONSE FROM BILLING: *****")
-                        .to("log:INFO?showBody=true&showHeaders=true")
-                        .log(LoggingLevel.INFO, "***** RESPONSE FROM BILLING BODY: *****")
-                        .log(LoggingLevel.INFO, "***** ${body} *****")
-                        .when(simple("${body} contains 'SUCCESS'"))
-                            .log(LoggingLevel.INFO, "***** SENDING THIS TO WAREHOUSE: *****")
-                            .to("log:INFO?showBody=true&showHeaders=true")
-                            .inOnly("amq:warehouse.orders.new?transferException=false&jmsMessageType=Text")
+                        .wireTap("direct:warehouse")
                         .endChoice()
 
                     .when(header("uriPath").startsWith("/billing/refund"))
@@ -87,8 +78,18 @@ public class GatewayRoute extends SpringRouteBuilder {
         // and fanning out to multiple locations. In this example, we don't care which one fulfills the order.
         from("direct:warehouse")
                 .routeId("warehouseMsgGateway")
-                .inOnly("amq:warehouse.orders.new?transferException=false&jmsMessageType=Text");
-
+                .log(LoggingLevel.INFO, "RECD IN WAREHOUSE GATEWAY")
+                .to("log:INFO?showBody=true&showHeaders=true")
+                .choice()
+                    .when(simple("${body) contains 'SUCCESS'"))
+                            .log(LoggingLevel.INFO, "SUCCESS IN BODY")
+                    .when(simple("${body) contains 'FAILURE'"))
+                            .log(LoggingLevel.INFO, "FAILURE IN BODY")
+                    .otherwise()
+                            .log(LoggingLevel.INFO, "NEITHER IN BODY")
+                            .log(LoggingLevel.INFO, "BODY: ${body}");
+//                .inOnly("amq:warehouse.orders.new?transferException=false&jmsMessageType=Text");
+//
 
     }
 }
