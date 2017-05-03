@@ -62,7 +62,10 @@ public class GatewayRoute extends SpringRouteBuilder {
                 .routeId("billingMsgGateway")
                 .choice()
                     .when(header("uriPath").startsWith("/billing/process"))
-                        .to("amq:billing.orders.new?transferException=true&jmsMessageType=Text", "direct:warehouse")
+                        .onCompletion().onCompleteOnly()
+                            .inOnly("amq:warehouse.orders.new?transferException=false&jmsMessageType=Text")
+                        .end()
+                        .to("amq:billing.orders.new?transferException=true&jmsMessageType=Text")
                         .endChoice()
 
                     .when(header("uriPath").startsWith("/billing/refund"))
