@@ -24,11 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /***
- * ====================================================
- *    FORMATTING OF CAMEL DSL/ROUTE FILE DISCOURAGED:
- *    ROUTE CHAIN INDICATED BY ATYPICAL BREAKS/TABBING
- * ====================================================
- *
  * @author jary@redhat.com
  */
 @Component
@@ -48,14 +43,10 @@ public class BillingRoute extends SpringRouteBuilder {
                 .unmarshal(dataFormatFactory.formatter(Transaction.class))
                 .bean(billingService, "process")
                 .marshal(dataFormatFactory.formatter(Result.class));
-//                .convertBodyTo(String.class);
 
         from("amq:billing.orders.refund")
                 .routeId("processRefunds")
-                .to("log:INFO?showBody=true&showHeaders=true")
-                .log(LoggingLevel.INFO, " **** STARTING REFUND UNMARSHAL IN PROCESS REFUNDS *****")
                 .unmarshal(dataFormatFactory.formatter(Transaction.class))
-                .log(LoggingLevel.INFO, " **** FINISHED REFUND UNMARSHAL IN PROCESS REFUNDS *****")
                 .bean(billingService, "refund")
                 .marshal(dataFormatFactory.formatter(Result.class));
     }
