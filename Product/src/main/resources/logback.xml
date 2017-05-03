@@ -10,8 +10,13 @@
     </encoder>
   </appender>
 
-  <root level="DEBUG">
+
+  <root level="INFO">
     <appender-ref ref="STDOUT" />
   </root>
+
+  <logger name="org.hibernate" additivity="false" level="INFO">
+    <appender-ref ref="STDOUT"/>
+  </logger>
 
 </configuration>
