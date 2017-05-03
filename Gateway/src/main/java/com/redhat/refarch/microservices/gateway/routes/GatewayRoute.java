@@ -62,7 +62,13 @@ public class GatewayRoute extends SpringRouteBuilder {
                 .routeId("billingMsgGateway")
                 .choice()
                     .when(header("uriPath").startsWith("/billing/process"))
-                        .to("direct:processOrder")
+                        .log(LoggingLevel.INFO, "***** SENDING THIS TO BILLING: *****")
+                        .to("log:INFO?showBody=true&showHeaders=true")
+                        .to("amq:billing.orders.new?transferException=true&jmsMessageType=Text")
+                        .when().jsonpath("$.status == 'SUCCESS'")
+                            .log(LoggingLevel.INFO, "***** SENDING THIS TO WAREHOUSE: *****")
+                            .to("log:INFO?showBody=true&showHeaders=true")
+                            .inOnly("amq:warehouse.orders.new?transferException=false&jmsMessageType=Text")
                         .endChoice()
 
                     .when(header("uriPath").startsWith("/billing/refund"))
@@ -71,16 +77,6 @@ public class GatewayRoute extends SpringRouteBuilder {
                     .otherwise()
                         .log(LoggingLevel.ERROR, "unknown method received in billingMsgGateway")
                 .end();
-
-        from("direct:processOrder")
-                .onCompletion().onCompleteOnly()
-                    .log(LoggingLevel.INFO, "***** SENDING THIS TO WAREHOUSE: *****")
-                    .to("log:INFO?showBody=true&showHeaders=true")
-                    .inOnly("amq:warehouse.orders.new?transferException=false&jmsMessageType=Text")
-                .end()
-                .log(LoggingLevel.INFO, "***** SENDING THIS TO BILLING: *****")
-                .to("log:INFO?showBody=true&showHeaders=true")
-                .to("amq:billing.orders.new?transferException=true&jmsMessageType=Text");
 
         // calls to warehouse are placed event-wise (InOnly, don't await reply) on a msg queue for fault tolerance
         // and fanning out to multiple locations. In this example, we don't care which one fulfills the order.
