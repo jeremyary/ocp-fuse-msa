@@ -390,7 +390,11 @@ public class RestClient {
         post.setEntity(new StringEntity(jsonObject.toString(), ContentType.APPLICATION_JSON));
 
         logInfo("Executing " + post);
-        String responseString = EntityUtils.toString(new DefaultHttpClient().execute(post).getEntity());
+        HttpResponse response = new DefaultHttpClient().execute(post);
+        logInfo("***** RESPONSE MSG *****: " + response.toString());
+        logInfo("***** RESPONSE ENTITY NULL *****: " + (response.getEntity() == null));
+        logInfo("***** RESPONSE ENTITY TYPE *****: " + response.getEntity().getClass().getSimpleName());
+        String responseString = EntityUtils.toString(response.getEntity());
 
         logInfo("Transaction processed as: " + responseString);
         return new JSONObject(responseString);
