@@ -42,7 +42,8 @@ public class BillingRoute extends SpringRouteBuilder {
                 .routeId("processNewOrders")
                 .unmarshal(dataFormatFactory.formatter(Transaction.class))
                 .bean(billingService, "process")
-                .marshal(dataFormatFactory.formatter(Result.class));
+                .marshal(dataFormatFactory.formatter(Result.class))
+                .convertBodyTo(String.class);
 
         from("amq:billing.orders.refund")
                 .routeId("processRefunds")
