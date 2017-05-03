@@ -37,13 +37,11 @@ public class CamelConfig extends CamelConfiguration {
         return new CamelContextConfiguration() {
             @Override
             public void beforeApplicationStart(CamelContext context) {
-                context.setTracing(true);
+                context.setTracing(false);
             }
 
             @Override
-            public void afterApplicationStart(CamelContext context) {
-                // your custom configuration goes here
-            }
+            public void afterApplicationStart(CamelContext context) {}
         };
     }
 
