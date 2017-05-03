@@ -52,30 +52,45 @@ public class GatewayRoute extends SpringRouteBuilder {
         // establish restlet on 9091 to intercept ALL contexts/rest requests for forwarding to underlying microservices
         from(restletGatewayUri + "?restletMethods=post,get,put,patch,delete&restletUriPatterns=#uriTemplates")
                 .routeId("proxy-api-gateway")
+                .log(LoggingLevel.INFO, "[${exchangeId}] request rec'd in API Gateway entry point: ")
+                .to("log:INFO?showBody=true&showHeaders=true")
 
                 // GatewayUriProcessor grabs the context and path and helps do a first-step content-based routing
                 .process(uriProcessor)
+                .log(LoggingLevel.INFO, "[${exchangeId}] post URI processing: ")
+                .to("log:INFO?showBody=true&showHeaders=true")
                 .choice()
 
                     // we want all billing to go through amq for messaging backing
                     .when(simple("${headers.newHostContext} =~ 'billing-service'"))
+                        .log(LoggingLevel.INFO, "[${exchangeId}] URI processed, billing-service request found: ")
+                        .to("log:INFO?showBody=true&showHeaders=true")
                         .to("direct:billingRoute")
 
                     // product and sales calls can just mirror through directly to their respect rest API via http
                     .otherwise()
+                        .log(LoggingLevel.INFO, "[${exchangeId}] URI processed, proxy request found: ")
+                        .to("log:INFO?showBody=true&showHeaders=true")
                         .recipientList(simple(newHostContext + "?bridgeEndpoint=true"))
                 .end();
 
         // calls to billing are Request/Reply (InOut) via active-mq for fault tolerance
         from("direct:billingRoute")
                 .routeId("billingMsgGateway")
+                .log(LoggingLevel.INFO, "[${exchangeId}] entering billingMsgGateway: ")
+                .to("log:INFO?showBody=true&showHeaders=true")
                 .choice()
                     .when(header("uriPath").startsWith("/billing/process"))
+                        .log(LoggingLevel.INFO, "[${exchangeId}] billing/process request, sending to amq: ")
+                        .to("log:INFO?showBody=true&showHeaders=true")
                         .to("amq:billing.orders.new?transferException=true&jmsMessageType=Text")
+                        .log(LoggingLevel.INFO, "[${exchangeId}] also wiretapping to warehouse")
                         .wireTap("direct:warehouse")
                     .endChoice()
 
                     .when(header("uriPath").startsWith("/billing/refund"))
+                        .log(LoggingLevel.INFO, "[${exchangeIdbilling/refund request, sending to amq: ")
+                        .to("log:INFO?showBody=true&showHeaders=true")
                         .to("amq:billing.orders.refund?transferException=true&jmsMessageType=Text")
 
                     .otherwise()
@@ -85,9 +100,13 @@ public class GatewayRoute extends SpringRouteBuilder {
         // calls to warehouse are used as Event Messages (InOnly) via active-mq for fault tolerance
         from("direct:warehouse")
                 .routeId("warehouseMsgGateway")
+                .log(LoggingLevel.INFO, "[${exchangeId}] entering warehouse route: ")
+                .to("log:INFO?showBody=true&showHeaders=true")
 
                 // filter out transactions that failed or faulted out so we don't fulfill
                 .filter(simple("${body} contains 'SUCCESS'"))
-                    .inOnly("amq:warehouse.orders.new?transferException=false&jmsMessageType=Text");
+                .log(LoggingLevel.INFO, "[${exchangeId}] warehouse - filtered as SUCCESS, sending to amq")
+                .to("log:INFO?showBody=true&showHeaders=true")
+                .inOnly("amq:warehouse.orders.new?transferException=false&jmsMessageType=Text");
     }
 }
