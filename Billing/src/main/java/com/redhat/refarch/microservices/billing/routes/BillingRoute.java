@@ -54,6 +54,8 @@ public class BillingRoute extends SpringRouteBuilder {
                 .to("log:INFO?showBody=true&showHeaders=true")
                 .marshal(dataFormatFactory.formatter(Result.class))
                 .log(LoggingLevel.INFO, " **** FINISHED REMARSHAL IN PROCESSNEWORDERS *****")
+                .to("log:INFO?showBody=true&showHeaders=true")
+                .convertBodyTo(String.class)
                 .to("log:INFO?showBody=true&showHeaders=true");
 
         from("amq:billing.orders.refund")
