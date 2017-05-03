@@ -68,6 +68,8 @@ public class GatewayRoute extends SpringRouteBuilder {
                         .to("amq:billing.orders.new?transferException=true&jmsMessageType=Text")
                         .log(LoggingLevel.INFO, "***** RESPONSE FROM BILLING: *****")
                         .to("log:INFO?showBody=true&showHeaders=true")
+                        .log(LoggingLevel.INFO, "***** RESPONSE FROM BILLING BODY: *****")
+                        .log(LoggingLevel.INFO, "***** ${body} *****")
                         .when(simple("${body} contains 'SUCCESS'"))
                             .log(LoggingLevel.INFO, "***** SENDING THIS TO WAREHOUSE: *****")
                             .to("log:INFO?showBody=true&showHeaders=true")
