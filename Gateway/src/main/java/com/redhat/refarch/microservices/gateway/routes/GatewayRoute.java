@@ -74,11 +74,12 @@ public class GatewayRoute extends SpringRouteBuilder {
 
         from("direct:processOrder")
                 .onCompletion().onCompleteOnly()
-                    .log(LoggingLevel.INFO, "***** SENDING THIS TO PROCESS: *****")
+                    .log(LoggingLevel.INFO, "***** SENDING THIS TO WAREHOUSE: *****")
                     .to("log:INFO?showBody=true&showHeaders=true")
                     .inOnly("amq:warehouse.orders.new?transferException=false&jmsMessageType=Text")
                 .end()
-                .log(LoggingLevel.INFO, "***** SENDING THIS TO PROCESS: *****")
+                .log(LoggingLevel.INFO, "***** SENDING THIS TO BILLING: *****")
+                .to("log:INFO?showBody=true&showHeaders=true")
                 .to("amq:billing.orders.new?transferException=true&jmsMessageType=Text");
 
         // calls to warehouse are placed event-wise (InOnly, don't await reply) on a msg queue for fault tolerance
