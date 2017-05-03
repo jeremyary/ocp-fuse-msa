@@ -65,11 +65,11 @@ public class GatewayRoute extends SpringRouteBuilder {
                 .choice()
                     .when(header("uriPath").startsWith("/billing/process"))
                         .multicast().parallelProcessing()
-                        .inOut("amq:billing.orders.new?transferException=true&jmsMessageType=Text", "direct:warehouse")
+                        .to("amq:billing.orders.new?transferException=true&jmsMessageType=Text", "direct:warehouse")
                         .endChoice()
 
                     .when(header("uriPath").startsWith("/billing/refund"))
-                        .inOut("amq:billing.orders.refund?transferException=true&jmsMessageType=Text")
+                        .to("amq:billing.orders.refund?transferException=true&jmsMessageType=Text")
 
                     .otherwise()
                         .log(LoggingLevel.ERROR, "unknown method received in billingMsgGateway")
