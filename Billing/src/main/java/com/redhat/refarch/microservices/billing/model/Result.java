@@ -1,78 +1,69 @@
 package com.redhat.refarch.microservices.billing.model;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 @XmlRootElement
-public class Result
-{
+public class Result {
 
-	public enum Status
-	{
-		SUCCESS, FAILURE
-	}
+    public enum Status {
+        SUCCESS, FAILURE
+    }
 
-	private Status status;
-	private String name;
-	private Long orderNumber;
-	private Date transactionDate;
-	private Integer transactionNumber;
+    private Status status;
+    private String name;
+    private Long orderNumber;
+    private Date transactionDate;
+    private Integer transactionNumber;
 
-	public Status getStatus()
-	{
-		return status;
-	}
+    public Result(String name, Long orderNumber) {
+        this.name = name;
+        this.orderNumber = orderNumber;
+    }
 
-	public void setStatus(Status status)
-	{
-		this.status = status;
-	}
+    public Status getStatus() {
+        return status;
+    }
 
-	public String getName()
-	{
-		return name;
-	}
+    public void setStatus(Status status) {
+        this.status = status;
+    }
 
-	public void setName(String name)
-	{
-		this.name = name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public Long getOrderNumber()
-	{
-		return orderNumber;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setOrderNumber(Long orderNumber)
-	{
-		this.orderNumber = orderNumber;
-	}
+    public Long getOrderNumber() {
+        return orderNumber;
+    }
 
-	public Date getTransactionDate()
-	{
-		return transactionDate;
-	}
+    public void setOrderNumber(Long orderNumber) {
+        this.orderNumber = orderNumber;
+    }
 
-	public void setTransactionDate(Date transactionDate)
-	{
-		this.transactionDate = transactionDate;
-	}
+    public Date getTransactionDate() {
+        return transactionDate;
+    }
 
-	public Integer getTransactionNumber()
-	{
-		return transactionNumber;
-	}
+    public void setTransactionDate(Date transactionDate) {
+        this.transactionDate = transactionDate;
+    }
 
-	public void setTransactionNumber(Integer transactionNumber)
-	{
-		this.transactionNumber = transactionNumber;
-	}
+    public Integer getTransactionNumber() {
+        return transactionNumber;
+    }
 
-	@Override
-	public String toString()
-	{
-		return "Result [status=" + status + ", name=" + name + ", orderNumber=" + orderNumber + ", transactionDate=" + transactionDate
-				+ ", transactionNumber=" + transactionNumber + "]";
-	}
+    public void setTransactionNumber(Integer transactionNumber) {
+        this.transactionNumber = transactionNumber;
+    }
+
+    @Override
+    public String toString() {
+        return "Result [status=" + status + ", name=" + name + ", orderNumber=" + orderNumber + ", transactionDate=" + transactionDate
+                + ", transactionNumber=" + transactionNumber + "]";
+    }
 }

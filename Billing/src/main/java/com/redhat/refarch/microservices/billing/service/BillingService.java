@@ -18,6 +18,7 @@ package com.redhat.refarch.microservices.billing.service;
 import com.redhat.refarch.microservices.billing.model.Result;
 import com.redhat.refarch.microservices.billing.model.Result.Status;
 import com.redhat.refarch.microservices.billing.model.Transaction;
+import org.apache.camel.Consume;
 import org.springframework.stereotype.Component;
 
 import java.util.Calendar;
@@ -34,9 +35,7 @@ public class BillingService {
 
     public Result process(Transaction transaction) {
 
-        Result result = new Result();
-        result.setName(transaction.getCustomerName());
-        result.setOrderNumber(transaction.getOrderNumber());
+        Result result = new Result(transaction.getCustomerName(), transaction.getOrderNumber());
 
         logInfo("Asked to process credit card transaction: " + transaction);
 

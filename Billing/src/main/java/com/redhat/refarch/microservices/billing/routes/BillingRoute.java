@@ -38,12 +38,25 @@ public class BillingRoute extends SpringRouteBuilder {
     @Override
     public void configure() throws Exception {
 
+        /*
+            It's possible to bypass this route declaration completely by adding an annotation on the bean methods
+            which will receive a message. Example:
+
+                public class BillingService {
+
+                    @Consume(uri = "amq:billing.orders.new")
+                    public Result process(String transactionJson) { ... }
+
+            However, notice that the payload received is now a JSON string. TypeConversion will still be required, so
+             in the name of separation of concerns, I chose to keep type conversions in a defined route. Also refer to
+             @Produce if interested in publishing directly to queues from beans rather than through a route.
+         */
+
         from("amq:billing.orders.new")
                 .routeId("processNewOrders")
                 .unmarshal(dataFormatFactory.formatter(Transaction.class))
                 .bean(billingService, "process")
-                .marshal(dataFormatFactory.formatter(Result.class))
-                .convertBodyTo(String.class);
+                .marshal(dataFormatFactory.formatter(Result.class));
 
         from("amq:billing.orders.refund")
                 .routeId("processRefunds")

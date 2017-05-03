@@ -21,19 +21,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /***
+ *
+ * the main microservice API Gateway, taking all rest calls on any context and routing them as needed
+ *
  * @author jary@redhat.com
  */
 @Component
 public class GatewayRoute extends SpringRouteBuilder {
 
-    @Autowired
     private GatewayUriProcessor uriProcessor;
+
+    @Autowired
+    public GatewayRoute(GatewayUriProcessor uriProcessor) {
+        this.uriProcessor = uriProcessor;
+    }
 
     @Override
     public void configure() throws Exception {
 
-        String gatewayEndpoint = "restlet:http://0.0.0.0:9091/{endpoint}";
-        String newHost = "http://${headers.newHost}:8080${headers.uriPath}";
+        String restletGatewayUri = "restlet:http://0.0.0.0:9091/{endpoint}";
+        String newHostContext = "http://${headers.newHostContext}:8080${headers.uriPath}";
 
         // error handler for all following routes
         errorHandler(defaultErrorHandler()
@@ -42,30 +49,31 @@ public class GatewayRoute extends SpringRouteBuilder {
                 .redeliveryDelay(3000)
                 .retryAttemptedLogLevel(LoggingLevel.WARN));
 
-        // establish restlet on 9091 to intercept all rest requests for forwarding to services
-        // calls to product-service and sales-service are passed through as we're simply mirroring the provided API
-        // that our microservices have already established
-        from(gatewayEndpoint + "?restletMethods=post,get,put,proppatch,delete&restletUriPatterns=#uriTemplates")
+        // establish restlet on 9091 to intercept ALL contexts/rest requests for forwarding to underlying microservices
+        from(restletGatewayUri + "?restletMethods=post,get,put,patch,delete&restletUriPatterns=#uriTemplates")
                 .routeId("proxy-api-gateway")
+
+                // GatewayUriProcessor grabs the context and path and helps do a first-step content-based routing
                 .process(uriProcessor)
                 .choice()
-                    .when(simple("${headers.newHost} =~ 'billing-service'"))
 
+                    // we want all billing to go through amq for messaging backing
+                    .when(simple("${headers.newHostContext} =~ 'billing-service'"))
                         .to("direct:billingRoute")
+
+                    // product and sales calls can just mirror through directly to their respect rest API via http
                     .otherwise()
-                        .recipientList(simple(newHost + "?bridgeEndpoint=true"))
+                        .recipientList(simple(newHostContext + "?bridgeEndpoint=true"))
                 .end();
 
-        // calls to billing are placed transactionally (InOut) on a msg queue for fault tolerance
-        // and multicast to warehouses for fulfillment
+        // calls to billing are Request/Reply (InOut) via active-mq for fault tolerance
         from("direct:billingRoute")
-                .streamCaching()
                 .routeId("billingMsgGateway")
                 .choice()
                     .when(header("uriPath").startsWith("/billing/process"))
                         .to("amq:billing.orders.new?transferException=true&jmsMessageType=Text")
                         .wireTap("direct:warehouse")
-                        .endChoice()
+                    .endChoice()
 
                     .when(header("uriPath").startsWith("/billing/refund"))
                         .to("amq:billing.orders.refund?transferException=true&jmsMessageType=Text")
@@ -74,22 +82,12 @@ public class GatewayRoute extends SpringRouteBuilder {
                         .log(LoggingLevel.ERROR, "unknown method received in billingMsgGateway")
                 .end();
 
-        // calls to warehouse are placed event-wise (InOnly, don't await reply) on a msg queue for fault tolerance
-        // and fanning out to multiple locations. In this example, we don't care which one fulfills the order.
+        // calls to warehouse are used as Event Messages (InOnly) via active-mq for fault tolerance
         from("direct:warehouse")
                 .routeId("warehouseMsgGateway")
-                .log(LoggingLevel.INFO, "RECD IN WAREHOUSE GATEWAY")
-                .to("log:INFO?showBody=true&showHeaders=true")
-                .choice()
-                    .when(simple("${body} contains 'SUCCESS'"))
-                            .log(LoggingLevel.INFO, "SUCCESS IN BODY")
-                    .when(simple("${body} contains 'FAILURE'"))
-                            .log(LoggingLevel.INFO, "FAILURE IN BODY")
-                    .otherwise()
-                            .log(LoggingLevel.INFO, "NEITHER IN BODY")
-                            .log(LoggingLevel.INFO, "BODY: ${body}");
-//                .inOnly("amq:warehouse.orders.new?transferException=false&jmsMessageType=Text");
-//
 
+                // filter out transactions that failed or faulted out so we don't fulfill
+                .filter(simple("${body} contains 'SUCCESS'"))
+                    .inOnly("amq:warehouse.orders.new?transferException=false&jmsMessageType=Text");
     }
 }

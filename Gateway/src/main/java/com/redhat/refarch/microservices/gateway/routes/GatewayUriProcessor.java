@@ -49,6 +49,6 @@ public class GatewayUriProcessor implements Processor {
         else
             throw new Exception("unknown context received on API Gateway");
 
-        exchange.getIn().setHeader("newHost", outPattern);
+        exchange.getIn().setHeader("newHostContext", outPattern);
     }
 }
