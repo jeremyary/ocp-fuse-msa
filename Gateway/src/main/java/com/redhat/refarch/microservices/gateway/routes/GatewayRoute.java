@@ -40,7 +40,7 @@ public class GatewayRoute extends SpringRouteBuilder {
     public void configure() throws Exception {
 
         String restletGatewayUri = "restlet:http://0.0.0.0:9091/{endpoint}";
-        String newHostContext = "http://${headers.newHostContext}:8080${headers.uriPath}";
+        String newHostContext = "http4://${headers.newHostContext}:8080${headers.uriPath}";
 
         // error handler for all following routes
         errorHandler(defaultErrorHandler()
