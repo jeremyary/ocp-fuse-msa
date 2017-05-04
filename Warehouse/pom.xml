@@ -133,17 +133,6 @@
 			<artifactId>hibernate-validator</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>org.infinispan</groupId>
-			<artifactId>infinispan-spring-boot-starter</artifactId>
-			<version>${infinispan.starter.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.infinispan</groupId>
-			<artifactId>infinispan-core</artifactId>
-			<version>${infinispan.version}</version>
-		</dependency>
-
 	</dependencies>
 
 	<build>
