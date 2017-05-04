@@ -104,7 +104,7 @@ public class GatewayRoute extends SpringRouteBuilder {
                 .to("log:INFO?showBody=true&showHeaders=true")
 
                 // filter out transactions that failed or faulted out so we don't fulfill
-                .filter(simple("${bodyAs{String}} contains 'SUCCESS'"))
+                .filter(simple("${bodyAs(String)} contains 'SUCCESS'"))
                     .log(LoggingLevel.INFO, "[${exchangeId}] FILTERED SUCCESS, FOWARDING TO WAREHOUSES")
                     .to("log:INFO?showBody=true&showHeaders=true")
                     .inOnly("amq:topic:warehouse.orders&jmsMessageType=Text");
