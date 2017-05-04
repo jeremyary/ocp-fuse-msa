@@ -100,13 +100,9 @@ public class GatewayRoute extends SpringRouteBuilder {
         // calls to warehouse are used as Event Messages (InOnly) via active-mq for fault tolerance
         from("direct:warehouse")
                 .routeId("warehouseMsgGateway")
-                .log(LoggingLevel.INFO, "[${exchangeId}] entering warehouse route: ")
-                .to("log:INFO?showBody=true&showHeaders=true")
 
                 // filter out transactions that failed or faulted out so we don't fulfill
                 .filter(simple("${body} contains 'SUCCESS'"))
-                .log(LoggingLevel.INFO, "[${exchangeId}] warehouse - filtered as SUCCESS, sending to amq")
-                .to("log:INFO?showBody=true&showHeaders=true")
-                .inOnly("amq:warehouse.orders.new?transferException=false&jmsMessageType=Text");
+                    .inOnly("amq:topic:warehouse.orders&jmsMessageType=Text");
     }
 }

@@ -32,6 +32,11 @@ import java.util.List;
 @ComponentScan("com.redhat.refarch.microservices.gateway")
 public class CamelConfig extends CamelConfiguration {
 
+    /*
+        There's some inconvenient log WARNS from restlet over Headers, it's a known issue,
+        but can't be helped without redirecting all restlet logging - not necessary for this project.
+        https://issues.apache.org/jira/browse/CAMEL-10665
+     */
     @Bean
     CamelContextConfiguration contextConfiguration() {
         return new CamelContextConfiguration() {
