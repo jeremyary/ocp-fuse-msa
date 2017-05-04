@@ -381,6 +381,7 @@ public class RestClient {
                 .put("verificationCode", Integer.valueOf(request.getParameter("verificationCode")))
                 .put("billingAddress", customer.get("address"))
                 .put("customerName", customer.get("name"))
+                .put("customerId", customer.get("id"))
                 .put("orderNumber", request.getSession().getAttribute("orderId"));
 
         logInfo(jsonObject.toString());
@@ -391,9 +392,6 @@ public class RestClient {
 
         logInfo("Executing " + post);
         HttpResponse response = new DefaultHttpClient().execute(post);
-        logInfo("***** RESPONSE MSG *****: " + response.toString());
-        logInfo("***** RESPONSE ENTITY NULL *****: " + (response.getEntity() == null));
-        logInfo("***** RESPONSE ENTITY TYPE *****: " + response.getEntity().getClass().getSimpleName());
         String responseString = EntityUtils.toString(response.getEntity());
 
         logInfo("Transaction processed as: " + responseString);

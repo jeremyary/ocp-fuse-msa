@@ -16,7 +16,15 @@
 package com.redhat.refarch.microservices.warehouse.service;
 
 import com.redhat.refarch.microservices.warehouse.model.Result;
-import org.apache.camel.Message;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPatch;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.codehaus.jettison.json.JSONObject;
 import org.springframework.stereotype.Component;
 
 import java.util.logging.Level;
@@ -27,26 +35,22 @@ public class WarehouseService {
 
     private Logger logger = Logger.getLogger(getClass().getName());
 
-    public Message determineOwnership(Message message) {
+    public void fulfillOrder(Result result) throws Exception {
 
-        /*
-            In production cases, multiple warehouse instances would be subscribed to the warehouse.orders topic, so
-            this method could be used to referenced a shared data grid clustered over all warehouse instances. With
-            proper geographical and inventory level information, a decision could be made as to whether this specific
-            instance is the optimal warehouse to fulfill the request or not. Note that doing so would require a lock
-            mechanism in the shared cache if the choice algorithm could potentially allow duplicate optimal choices.
-         */
+        HttpClient client = new DefaultHttpClient();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("status", "Paid");
+        jsonObject.put("transactionNumber", result.getTransactionNumber());
+        jsonObject.put("transactionDate", result.getTransactionDate());
 
-        // in this demo, only a single warehouse instance will be used, so just claim all messages and return them
-        message.setHeader("ownership", "true");
-        return message;
-    }
-
-    public void fulfillOrder(Result result) {
-
-        logInfo("===============================================");
-        logInfo("===          FULFILLING ORDER!!!            ===");
-        logInfo("===============================================");
+        URIBuilder uriBuilder = new URIBuilder("http://gateway-service:9091/customers/" + result.getCustomerId()
+                + "/orders/" + result.getOrderNumber());
+        HttpPatch patch = new HttpPatch(uriBuilder.build());
+        patch.setEntity(new StringEntity(jsonObject.toString(), ContentType.APPLICATION_JSON));
+        logInfo("Executing " + patch);
+        HttpResponse response = client.execute(patch);
+        String responseString = EntityUtils.toString(response.getEntity());
+        logInfo("Got response " + responseString);
     }
 
     private void logInfo(String message) {

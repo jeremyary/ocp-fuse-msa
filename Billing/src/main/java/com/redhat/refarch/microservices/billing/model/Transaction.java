@@ -3,103 +3,94 @@ package com.redhat.refarch.microservices.billing.model;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class Transaction
-{
+public class Transaction {
 
-	private Long creditCardNumber;
-	private Integer expMonth;
-	private Integer expYear;
-	private Integer verificationCode;
-	private String billingAddress;
-	private String customerName;
-	private Long orderNumber;
-	private Double amount;
+    private Long creditCardNumber;
+    private Integer expMonth;
+    private Integer expYear;
+    private Integer verificationCode;
+    private String billingAddress;
+    private Long customerId;
+    private String customerName;
+    private Long orderNumber;
+    private Double amount;
 
-	public Long getCreditCardNumber()
-	{
-		return creditCardNumber;
-	}
+    public Long getCustomerId() {
+        return customerId;
+    }
 
-	public void setCreditCardNumber(Long creditCardNumber)
-	{
-		this.creditCardNumber = creditCardNumber;
-	}
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
+    }
 
-	public Integer getExpMonth()
-	{
-		return expMonth;
-	}
+    public Long getCreditCardNumber() {
+        return creditCardNumber;
+    }
 
-	public void setExpMonth(Integer expMonth)
-	{
-		this.expMonth = expMonth;
-	}
+    public void setCreditCardNumber(Long creditCardNumber) {
+        this.creditCardNumber = creditCardNumber;
+    }
 
-	public Integer getExpYear()
-	{
-		return expYear;
-	}
+    public Integer getExpMonth() {
+        return expMonth;
+    }
 
-	public void setExpYear(Integer expYear)
-	{
-		this.expYear = expYear;
-	}
+    public void setExpMonth(Integer expMonth) {
+        this.expMonth = expMonth;
+    }
 
-	public Integer getVerificationCode()
-	{
-		return verificationCode;
-	}
+    public Integer getExpYear() {
+        return expYear;
+    }
 
-	public void setVerificationCode(Integer verificationCode)
-	{
-		this.verificationCode = verificationCode;
-	}
+    public void setExpYear(Integer expYear) {
+        this.expYear = expYear;
+    }
 
-	public String getBillingAddress()
-	{
-		return billingAddress;
-	}
+    public Integer getVerificationCode() {
+        return verificationCode;
+    }
 
-	public void setBillingAddress(String billingAddress)
-	{
-		this.billingAddress = billingAddress;
-	}
+    public void setVerificationCode(Integer verificationCode) {
+        this.verificationCode = verificationCode;
+    }
 
-	public String getCustomerName()
-	{
-		return customerName;
-	}
+    public String getBillingAddress() {
+        return billingAddress;
+    }
 
-	public void setCustomerName(String customerName)
-	{
-		this.customerName = customerName;
-	}
+    public void setBillingAddress(String billingAddress) {
+        this.billingAddress = billingAddress;
+    }
 
-	public Long getOrderNumber()
-	{
-		return orderNumber;
-	}
+    public String getCustomerName() {
+        return customerName;
+    }
 
-	public void setOrderNumber(Long orderNumber)
-	{
-		this.orderNumber = orderNumber;
-	}
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
 
-	public Double getAmount()
-	{
-		return amount;
-	}
+    public Long getOrderNumber() {
+        return orderNumber;
+    }
 
-	public void setAmount(Double amount)
-	{
-		this.amount = amount;
-	}
+    public void setOrderNumber(Long orderNumber) {
+        this.orderNumber = orderNumber;
+    }
 
-	@Override
-	public String toString()
-	{
-		return "Transaction [creditCardNumber=" + creditCardNumber + ", expMonth=" + expMonth + ", expYear=" + expYear + ", verificationCode="
-				+ verificationCode + ", billingAddress=" + billingAddress + ", customerName=" + customerName + ", orderNumber=" + orderNumber
-				+ ", amount=" + amount + "]";
-	}
+    public Double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Double amount) {
+        this.amount = amount;
+    }
+
+    @Override
+    public String toString() {
+        return "Transaction [creditCardNumber=" + creditCardNumber + ", expMonth=" + expMonth + ", expYear=" + expYear + ", verificationCode="
+                + verificationCode + ", billingAddress=" + billingAddress + ", customerName=" + customerName + ", orderNumber=" + orderNumber
+                + ", amount=" + amount + "]";
+    }
 }

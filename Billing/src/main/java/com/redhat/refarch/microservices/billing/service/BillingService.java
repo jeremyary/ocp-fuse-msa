@@ -35,9 +35,12 @@ public class BillingService {
 
     public Result process(Transaction transaction) {
 
-        Result result = new Result(transaction.getCustomerName(), transaction.getOrderNumber());
+        Result result = new Result();
 
         logInfo("Asked to process credit card transaction: " + transaction);
+        result.setName(transaction.getCustomerName());
+        result.setOrderNumber(transaction.getOrderNumber());
+        result.setCustomerId(transaction.getCustomerId());
 
         Calendar now = Calendar.getInstance();
         Calendar calendar = Calendar.getInstance();

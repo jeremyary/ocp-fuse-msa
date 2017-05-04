@@ -17,7 +17,9 @@ package com.redhat.refarch.microservices.warehouse.routes;
 
 import com.redhat.refarch.microservices.warehouse.model.Result;
 import com.redhat.refarch.microservices.warehouse.service.WarehouseService;
+import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
+import org.apache.camel.Processor;
 import org.apache.camel.spring.SpringRouteBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,22 +51,27 @@ public class WarehouseRoute extends SpringRouteBuilder {
         from("amq:topic:warehouse.orders?clientId=" + warehouseId)
                 .routeId("fulfillOrder")
 
-                .log(LoggingLevel.INFO, "***** WAREHOUSE ENTRY *****: ")
-                .to("log:INFO?showBody=true&showHeaders=true")
-
                 .unmarshal(dataFormatFactory.formatter(Result.class))
 
-                .log(LoggingLevel.INFO, "***** WAREHOUSE UNMARSHALLED *****: ")
-                .to("log:INFO?showBody=true&showHeaders=true")
+                .process(new Processor() {
+                    @Override
+                    public void process(Exchange exchange) throws Exception {
+                        /*
+                            In production cases, multiple warehouse instances would be subscribed to the
+                            warehouse.orders topic, so this processor could be used to referenced a shared data grid
+                            clustered over all warehouse  instances. With proper geographical and inventory level
+                            information, a decision could be made as to whether this specific instance is the optimal
+                            warehouse to fulfill the request or not. Note that doing so would require a lock
+                            mechanism in the shared cache if the choice algorithm could potentially allow duplicate
+                            optimal choices.
+                         */
 
-                .bean(warehouseService, "determineOwnership")
-
-                .log(LoggingLevel.INFO, "***** POST OWNERSHIP *****: ")
-                .to("log:INFO?showBody=true&showHeaders=true")
+                        // in this demo, only a single warehouse instance will be used, so just claim all messages and return them
+                        exchange.getIn().setHeader("ownership", "true");
+                    }
+                })
 
                 .filter(simple("${headers.ownership} == 'true'"))
-                    .log(LoggingLevel.INFO, "***** FILTERED YES *****: ")
-                    .to("log:INFO?showBody=true&showHeaders=true")
                     .bean(warehouseService, "fulfillOrder");
 
     }

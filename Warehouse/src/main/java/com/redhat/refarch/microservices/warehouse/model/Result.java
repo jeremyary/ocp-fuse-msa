@@ -12,16 +12,10 @@ public class Result {
 
     private Status status;
     private String name;
+    private Long customerId;
     private Long orderNumber;
     private Date transactionDate;
     private Integer transactionNumber;
-
-    public Result() {}
-
-    public Result(String name, Long orderNumber) {
-        this.name = name;
-        this.orderNumber = orderNumber;
-    }
 
     public Status getStatus() {
         return status;
@@ -37,6 +31,14 @@ public class Result {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Long getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
     }
 
     public Long getOrderNumber() {
