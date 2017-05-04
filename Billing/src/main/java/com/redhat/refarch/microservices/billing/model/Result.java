@@ -16,6 +16,8 @@ public class Result {
     private Date transactionDate;
     private Integer transactionNumber;
 
+    public Result() {}
+
     public Result(String name, Long orderNumber) {
         this.name = name;
         this.orderNumber = orderNumber;
