@@ -107,6 +107,6 @@ public class GatewayRoute extends SpringRouteBuilder {
                 .filter(simple("${bodyAs(String)} contains 'SUCCESS'"))
                     .log(LoggingLevel.INFO, "[${exchangeId}] FILTERED SUCCESS, FOWARDING TO WAREHOUSES")
                     .to("log:INFO?showBody=true&showHeaders=true")
-                    .inOnly("amq:topic:warehouse.orders&jmsMessageType=Text");
+                    .inOnly("amq:topic:warehouse.orders?jmsMessageType=Text");
     }
 }
