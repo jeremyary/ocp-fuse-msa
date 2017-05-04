@@ -46,7 +46,7 @@ public class WarehouseRoute extends SpringRouteBuilder {
     @Override
     public void configure() throws Exception {
 
-        from("activemq:topic:warehouse.orders?clientId=" + warehouseId + "&durableSubscriptionName=DS" + warehouseId)
+        from("activemq:topic:warehouse.orders?clientId=" + warehouseId)
                 .routeId("fulfillOrder")
 
                 .log(LoggingLevel.INFO, "***** WAREHOUSE ENTRY *****: ")
