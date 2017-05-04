@@ -39,9 +39,7 @@ public class WarehouseService {
 
         HttpClient client = new DefaultHttpClient();
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("status", "Paid");
-        jsonObject.put("transactionNumber", result.getTransactionNumber());
-        jsonObject.put("transactionDate", result.getTransactionDate());
+        jsonObject.put("status", "Shipped");
 
         URIBuilder uriBuilder = new URIBuilder("http://gateway-service:9091/customers/" + result.getCustomerId()
                 + "/orders/" + result.getOrderNumber());
