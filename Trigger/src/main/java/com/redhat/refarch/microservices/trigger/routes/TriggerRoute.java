@@ -54,7 +54,7 @@ public class TriggerRoute extends SpringRouteBuilder {
         from("direct:doPurchases")
                 .routeId("doPurchases")
                 .loop(10).copy()
-                .delay(6000)
+                .delay(3000)
                 .bean(triggerService, "doPurchase");
     }
 }
