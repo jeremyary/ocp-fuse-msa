@@ -62,8 +62,8 @@ public class TriggerService {
         JSONObject jsonResponse = new JSONObject(responseString);
         Customer customer = new Customer();
         customer.setId(jsonResponse.getLong("id"));
-        customer.setAddress(jsonObject.getString("address"));
-        customer.setName(jsonObject.getString("name"));
+        customer.setAddress(jsonResponse.getString("address"));
+        customer.setName(jsonResponse.getString("name"));
 
         //initialize an order
         jsonObject = new JSONObject()
