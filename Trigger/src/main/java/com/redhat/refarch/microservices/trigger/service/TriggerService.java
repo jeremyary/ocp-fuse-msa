@@ -34,6 +34,7 @@ import org.codehaus.jettison.json.JSONObject;
 import org.springframework.stereotype.Component;
 
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -89,13 +90,15 @@ public class TriggerService {
         logInfo("Executing " + get);
         response = client.execute(get);
         responseString = EntityUtils.toString(response.getEntity());
+        logInfo("Got response " + responseString);
         JSONArray jsonArray = new JSONArray(responseString);
         List<Map<String, Object>> products = Utils.getList(jsonArray);
-        Product item = (Product) products.get(0);
+        logInfo("array info " + Arrays.toString(products.toArray()));
+        Map<String, Object> item = products.get(0);
 
         // put item on order
         jsonObject = new JSONObject()
-            .put("sku", item.getSku())
+            .put("sku", item.get("sku"))
             .put("quantity", 1);
         uriBuilder = getUriBuilder("customers", customer.getId(), "orders", orderId, "orderItems");
         post = new HttpPost(uriBuilder.build());
@@ -107,7 +110,7 @@ public class TriggerService {
 
         // billing/process
         jsonObject = new JSONObject()
-                .put("amount", item.getPrice().doubleValue())
+                .put("amount", Double.valueOf((String) item.get("price")))
                 .put("creditCardNumber", 1234567890123456L)
                 .put("expMonth", 10)
                 .put("expYear", 19)
