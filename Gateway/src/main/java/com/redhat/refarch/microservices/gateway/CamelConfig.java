@@ -42,7 +42,9 @@ public class CamelConfig extends CamelConfiguration {
         return new CamelContextConfiguration() {
             @Override
             public void beforeApplicationStart(CamelContext context) {
-                context.setTracing(false);
+
+                context.setTracing(true);
+                context.setUseMDCLogging(true);
             }
 
             @Override
