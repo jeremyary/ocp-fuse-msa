@@ -110,7 +110,7 @@ public class TriggerService {
 
         // billing/process
         jsonObject = new JSONObject()
-                .put("amount", Double.valueOf((String) item.get("price")))
+                .put("amount", item.get("price"))
                 .put("creditCardNumber", 1234567890123456L)
                 .put("expMonth", 10)
                 .put("expYear", 19)
