@@ -1,4 +1,6 @@
 /target/
+nexus-tpl.json
+nexus-tpl.yaml
 # Created by .ignore support plugin (hsz.mobi)
 .metadata
 bin/

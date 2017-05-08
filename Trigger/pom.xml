@@ -142,7 +142,7 @@
 
         <dependency>
             <groupId>org.apache.camel</groupId>
-            <artifactId>camel-rest</artifactId>
+            <artifactId>camel-jetty</artifactId>
         </dependency>
 
         <dependency>

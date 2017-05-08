@@ -39,8 +39,7 @@ public class TriggerRoute extends SpringRouteBuilder {
     public void configure() throws Exception {
 
         restConfiguration().component("jetty")
-                .enableCORS(true)
-                .bindingMode(RestBindingMode.json)
+                .bindingMode(RestBindingMode.auto)
                 .dataFormatProperty("prettyPrint", "true")
                 .port(9091);
 
