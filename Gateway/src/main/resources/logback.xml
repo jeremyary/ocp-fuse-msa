@@ -10,7 +10,7 @@
         <sift>
             <appender name="STDOUT-${userid}" class="ch.qos.logback.core.ConsoleAppender">
                 <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-                    <pattern>%d [%-15.15t] %-5p %-.30c{1} [Exchange: %-.10X{camel.exchangeId}] [Route: %-.10X{camel.routeId}] %m%n</pattern>
+                    <pattern>%d [%-15.15t] %-5p %-.30c{1} [Exchange: %.-10X{camel.exchangeId}] [Route: %.-10X{camel.routeId}] %m%n</pattern>
                 </encoder>
             </appender>
 
