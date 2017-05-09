@@ -32,7 +32,6 @@
 
     <logger name="org.apache.camel" additivity="false" level="DEBUG">
         <appender-ref ref="STDOUT"/>
-        <appender-ref ref="SIFT"/>
     </logger>
 
     <logger name="com.redhat.refarch.microservices" additivity="false" level="INFO">
