@@ -13,7 +13,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package com.redhat.refarch.microservices.gateway;
+package com.redhat.refarch.microservices.billing;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.spring.boot.CamelContextConfiguration;
@@ -32,11 +32,6 @@ import java.util.List;
 @ComponentScan("com.redhat.refarch.microservices.gateway")
 public class CamelConfig extends CamelConfiguration {
 
-    /*
-        There's some inconvenient log WARNS from restlet over Headers, it's a known issue,
-        but can't be helped without redirecting all restlet logging - not necessary for this project.
-        https://issues.apache.org/jira/browse/CAMEL-10665
-     */
     @Bean
     CamelContextConfiguration contextConfiguration() {
         return new CamelContextConfiguration() {
@@ -49,25 +44,5 @@ public class CamelConfig extends CamelConfiguration {
             @Override
             public void afterApplicationStart(CamelContext context) {}
         };
-    }
-
-    @Bean
-    public List<String> uriTemplates() {
-        return Arrays.asList(
-                "/products/classify/{sku}",
-                "/products/keywords",
-                "/products/reduce",
-                "/products/{sku}",
-                "/products/",
-                "/billing/process",
-                "/billing/refund",
-                "/customers/{customerId}/orders/{orderId}/orderItems/{orderItemId}",
-                "/customers/{customerId}/orders/{orderId}/orderItems",
-                "/customers/{customerId}/orders/{orderId}",
-                "/customers/{customerId}/orders",
-                "/customers/authenticate",
-                "/customers/{id}",
-                "/customers/"
-        );
     }
 }
