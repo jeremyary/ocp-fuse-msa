@@ -2,6 +2,21 @@
 <!DOCTYPE xml>
 <configuration>
 
+    <appender name="SIFT" class="ch.qos.logback.classic.sift.SiftingAppender">
+        <discriminator>
+            <key>userid</key>
+            <defaultValue>unknown</defaultValue>
+        </discriminator>
+        <sift>
+            <appender name="STDOUT-${userid}" class="ch.qos.logback.core.ConsoleAppender">
+                <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                    <pattern>%d [%-15.15t] %-5p %-30.30c{1} - %-10.10X{camel.exchangeId} - %-10.10X{camel.routeId} - %m%n</pattern>
+                </encoder>
+            </appender>
+
+        </sift>
+    </appender>
+
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <!-- encoders are assigned the type
              ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
@@ -22,21 +37,6 @@
     <logger name="com.redhat.refarch.microservices" additivity="false" level="INFO">
         <appender-ref ref="STDOUT"/>
     </logger>
-
-    <appender name="SIFT" class="ch.qos.logback.classic.sift.SiftingAppender">
-        <discriminator>
-            <key>userid</key>
-            <defaultValue>unknown</defaultValue>
-        </discriminator>
-        <sift>
-            <appender name="STDOUT-${userid}" class="ch.qos.logback.core.ConsoleAppender">
-                <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-                    <pattern>%d [%-15.15t] %-5p %-30.30c{1} - %-10.10X{camel.exchangeId} - %-10.10X{camel.routeId} - %m%n</pattern>
-                </encoder>
-            </appender>
-
-        </sift>
-    </appender>
 
 
 </configuration>
